@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/owuordickson/swarm_gp.svg?branch=main)](https://travis-ci.org/owuordickson/swarm_gp)
+
 # Swarm Intelligence for GPs
 We provide Python implementations of swarm-based optimization algorithms for mining gradual patterns. The algorithm implementations include:
 
