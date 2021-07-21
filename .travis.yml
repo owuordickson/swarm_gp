@@ -1,0 +1,11 @@
+language: python
+
+python:
+    - "3.8"
+
+before_install:
+  - "python setup.py install"
+
+install: pip3 install -r requirements.txt
+
+script: python3 src/pkg_main/main.py -f data/DATASET.csv
