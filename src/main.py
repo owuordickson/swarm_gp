@@ -2,12 +2,14 @@
 """
 @author: "Dickson Owuor"
 @created: "03 May 2021"
+@modified: "21 July 2021"
 
 
 Usage:
-    $python init_acograd.py -f ../data/DATASET.csv -s 0.5
+    $python main.py -f ../data/DATASET.csv
 
 Description:
+    a -> algorithm (aco, ga, pso,wso, prs, pls)
     f -> file path (CSV)
     s -> minimum support
 
