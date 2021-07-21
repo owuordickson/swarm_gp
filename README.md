@@ -24,6 +24,28 @@ For example we executed the <em><strong>GA</strong>-GRAANK</em> algorithm on a s
 $python3 src/pkg_main/main.py -a 'ga' -f data/DATASET.csv
 ```
 
+<strong>Output</strong><br>
+```
+1. Age
+2. Salary
+3. Cars
+4. Expenses
+
+File: ../data/DATASET.csv
+
+Pattern : Support
+[('2', '+'), ('4', '-')] : 0.6
+[('1', '-'), ('2', '-')] : 0.6
+[('1', '-'), ('4', '+')] : 1.0
+[('1', '+'), ('2', '+'), ('4', '-')] : 0.6
+[('1', '+'), ('4', '-')] : 1.0
+[('2', '-'), ('4', '+')] : 0.6
+[('1', '+'), ('2', '+')] : 0.6
+[('1', '-'), ('2', '-'), ('4', '+')] : 0.6
+
+0.08473014831542969 seconds
+```
+
 where you specify the input parameters as follows:
 
 * <strong>algorithm</strong> - [required] select algorithm ```ga, pso, wso, prs, pls```
