@@ -2,8 +2,8 @@
 import config as cfg
 import time
 import tracemalloc
-from ..pkg_algorithms.graank_v2 import init
-from ..pkg_algorithms.shared.profile import Profile
+from src.pkg_algorithms.graank_v2 import init
+from src.pkg_algorithms.shared.profile import Profile
 
 # res = pkg_init(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
 # print(res)

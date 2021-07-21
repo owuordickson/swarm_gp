@@ -107,7 +107,7 @@ def graank(f_path=None, min_sup=None, eq=False, d_set=None):
                 patterns.append(gp)
                 i += 1
 
-    return patterns
+    return d_set, patterns
 
 
 def init(f_path, min_supp, cores, eq=False):
