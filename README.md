@@ -11,8 +11,7 @@ We provide Python implementations of swarm-based optimization algorithms for min
 You will be required to install the following Python dependencies:
 
 ```
-                   install python (version => 3.6)
-
+install python (version => 3.6)
 ```
 
 ### Usage:
@@ -23,6 +22,12 @@ For example we executed the <em><strong>GA</strong>-GRAANK</em> algorithm on a s
 ```
 $python3 src/pkg_main/main.py -a 'ga' -f data/DATASET.csv
 ```
+
+where you specify the input parameters as follows:
+
+* <strong>algorithm</strong> - [required] select algorithm ```ga, pso, wso, prs, pls```
+* <strong>filename.csv</strong> - [required] a file in csv format
+* <strong>minSup</strong> - [optional] minimum support ```default = 0.5```
 
 <strong>Output</strong><br>
 ```
@@ -46,11 +51,6 @@ Pattern : Support
 0.08473014831542969 seconds
 ```
 
-where you specify the input parameters as follows:
-
-* <strong>algorithm</strong> - [required] select algorithm ```ga, pso, wso, prs, pls```
-* <strong>filename.csv</strong> - [required] a file in csv format
-* <strong>minSup</strong> - [optional] minimum support ```default = 0.5```
 
 ### License:
 * MIT
