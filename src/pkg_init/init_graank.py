@@ -2,10 +2,10 @@
 import config as cfg
 import time
 import tracemalloc
-from ..ga_grad import init
-from ..shared.profile import Profile
+from ..pkg_algorithms.graank_v2 import init
+from ..pkg_algorithms.shared.profile import Profile
 
-# res = init(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
+# res = pkg_init(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
 # print(res)
 
 start = time.time()
@@ -17,6 +17,6 @@ end = time.time()
 wr_text = ("Run-time: " + str(end - start) + " seconds\n")
 wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
 wr_text += str(res_text)
-f_name = str('res_ga' + str(end).replace('.', '', 1) + '.txt')
+f_name = str('res_graank' + str(end).replace('.', '', 1) + '.txt')
 Profile.write_file(wr_text, f_name)
 print(wr_text)

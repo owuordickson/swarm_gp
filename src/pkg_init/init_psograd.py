@@ -2,10 +2,10 @@
 import config as cfg
 import time
 import tracemalloc
-from ..pso_grad import init
-from ..shared.profile import Profile
+from ..pkg_algorithms.pso_grad import init
+from ..pkg_algorithms.shared.profile import Profile
 
-# res = init(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
+# res = pkg_init(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
 # print(res)
 
 start = time.time()

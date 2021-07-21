@@ -11,7 +11,7 @@ import numpy as np
 import gc
 
 from .shared.dataset_bfs import Dataset
-from .shared.gp import GI, GP, TGP
+from .shared.gp import GI, GP
 from .shared.profile import Profile
 
 
