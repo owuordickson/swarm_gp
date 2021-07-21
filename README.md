@@ -17,10 +17,10 @@ install python (version => 3.6)
 ### Usage:
 Use it a command line program with the local package to mine gradual patterns:
 
-For example we executed the <em><strong>GA</strong>-GRAANK</em> algorithm on a sample data-set
+For example, we executed the <em><strong>GA</strong>-GRAANK</em> algorithm on a sample data-set
 
 ```
-$python3 src/pkg_main/main.py -a 'ga' -f data/DATASET.csv
+$python3 src/main.py -a 'ga' -f data/DATASET.csv
 ```
 
 where you specify the input parameters as follows:
