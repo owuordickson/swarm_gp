@@ -1,4 +1,4 @@
-# Swarm Intelligence
+# Swarm Intelligence for GPs
 We provide Python implementations of swarm-based optimization algorithms for mining gradual patterns. The algorithm implementations include:
 
 * Genetic Algorithm
