@@ -119,33 +119,5 @@ if __name__ == "__main__":
         f_name = str('res_graank' + str(end).replace('.', '', 1) + '.txt')
         Profile.write_file(wr_text, f_name)
         print(wr_text)
-    elif algChoice == 'acolcm':
-        # ACO-LCM
-        start = time.time()
-        tracemalloc.start()
-        res_text = aco_lcm.init(filePath, minSup, numCores)
-        snapshot = tracemalloc.take_snapshot()
-        end = time.time()
-
-        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-        wr_text += str(res_text)
-        f_name = str('res_acolcm' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name)
-        print(wr_text)
-    elif algChoice == 'lcm':
-        # LCM
-        start = time.time()
-        tracemalloc.start()
-        res_text = lcm_gp.init(filePath, minSup, numCores)
-        snapshot = tracemalloc.take_snapshot()
-        end = time.time()
-
-        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-        wr_text += str(res_text)
-        f_name = str('res_lcm' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name)
-        print(wr_text)
     else:
         print("Invalid Algorithm Choice!")
