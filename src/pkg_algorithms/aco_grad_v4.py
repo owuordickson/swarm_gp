@@ -10,7 +10,9 @@
 
 Breath-First Search for gradual patterns (ACO-GRAANK)
 
-Modification: generates distance matrix (d_matrix)
+Modification:
+1. generates distance matrix (d_matrix)
+2. uses static methods
 
 """
 import numpy as np
