@@ -33,8 +33,9 @@ class GradACO:
         self.iteration_count = 0
         self.d, self.attr_keys = self.generate_d()  # distance matrix (d) & attributes corresponding to d
 
-    def generate_d(self):
-        v_bins = self.d_set.valid_bins
+    @staticmethod
+    def generate_d(valid_bins):
+        v_bins = valid_bins
         # 1. Fetch valid bins group
         attr_keys = [GI(x[0], x[1].decode()).as_string() for x in v_bins[:, 0]]
 
@@ -54,21 +55,30 @@ class GradACO:
         # print(d)
         return d, attr_keys
 
-    def run_ant_colony(self):
-        min_supp = self.d_set.thd_supp
-        a = self.d_set.attr_size
+    @staticmethod
+    def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, max_iteration=cfg.MAX_ITERATIONS):
+
+        # 0. Initialize and prepare data set
+        d_set = Dataset(f_path, min_supp)
+        d_set.init_gp_attributes()
+        # attr_index = d_set.attr_cols
+        # e_factor = evaporation_factor
+        d, attr_keys = GradACO.generate_d(d_set.valid_bins)  # distance matrix (d) & attributes corresponding to d
+
+        a = d_set.attr_size
         winner_gps = list()  # subsets
         loser_gps = list()  # supersets
+        str_winner_gps = list()  # subsets
         repeated = 0
         it_count = 0
-        max_it = self.max_it
+        max_it = max_iteration
 
-        if self.d_set.no_bins:
+        if d_set.no_bins:
             return []
 
         # 1. Remove d[i][j] < frequency-count of min_supp
         fr_count = ((min_supp * a * (a - 1)) / 2)
-        self.d[self.d < fr_count] = 0
+        d[d < fr_count] = 0
 
         # 2. Calculating the visibility of the next city
         # visibility(i,j)=1/d(i,j)
@@ -78,7 +88,7 @@ class GradACO:
         #    visibility[visibility == np.inf] = 0
 
         # 3. Initialize pheromones (p_matrix)
-        pheromones = np.ones(self.d.shape, dtype=float)
+        pheromones = np.ones(d.shape, dtype=float)
 
         # Best Cost of Iteration
         best_cost_arr = np.empty(max_it)
@@ -88,7 +98,7 @@ class GradACO:
         # 4. Iterations for ACO
         # while repeated < 1:
         while it_count < max_it:
-            rand_gp, pheromones = self.generate_aco_gp(pheromones)
+            rand_gp, pheromones = GradACO.generate_aco_gp(attr_keys, d, pheromones, evaporation_factor)
             if len(rand_gp.gradual_items) > 1:
                 # print(rand_gp.get_pattern())
                 exits = GradACO.is_duplicate(rand_gp, winner_gps, loser_gps)
@@ -99,14 +109,14 @@ class GradACO:
                     is_sub = GradACO.check_anti_monotony(winner_gps, rand_gp, subset=True)
                     if is_super or is_sub:
                         continue
-                    gen_gp = self.validate_gp(rand_gp)
+                    gen_gp = GradACO.validate_gp(d_set, rand_gp)
                     is_present = GradACO.is_duplicate(gen_gp, winner_gps, loser_gps)
                     is_sub = GradACO.check_anti_monotony(winner_gps, gen_gp, subset=True)
                     if is_present or is_sub:
                         repeated += 1
                     else:
                         if gen_gp.support >= min_supp:
-                            pheromones = self.update_pheromones(gen_gp, pheromones)
+                            pheromones = GradACO.update_pheromones(attr_keys, gen_gp, pheromones)
                             winner_gps.append(gen_gp)
                             best_cost = round((1 / gen_gp.support), 2)
                         else:
@@ -129,15 +139,19 @@ class GradACO:
         out = structure()
         out.best_costs = best_cost_arr
         out.best_patterns = winner_gps
-        out.iterations = str_plt
+        out.str_iterations = str_plt
+        out.iteration_count = it_count
+        out.titles = d_set.titles
+        out.col_count = d_set.col_count
+        out.row_count = d_set.row_count
+        out.e_factor = evaporation_factor
 
-        self.iteration_count = it_count
         return out
         # return winner_gps
 
-    def generate_aco_gp(self, p_matrix):
-        attr_keys = self.attr_keys
-        v_matrix = self.d
+    @staticmethod
+    def generate_aco_gp(attr_keys, d, p_matrix, e_factor):
+        v_matrix = d
         pattern = GP()
 
         # 1. Generate gradual items with highest pheromone and visibility
@@ -158,11 +172,12 @@ class GradACO:
                 continue
 
         # 2. Evaporate pheromones by factor e
-        p_matrix = (1 - self.e_factor) * p_matrix
+        p_matrix = (1 - e_factor) * p_matrix
         return pattern, p_matrix
 
-    def update_pheromones(self, pattern, p_matrix):
-        idx = [self.attr_keys.index(x.as_string()) for x in pattern.gradual_items]
+    @staticmethod
+    def update_pheromones(attr_keys, pattern, p_matrix):
+        idx = [attr_keys.index(x.as_string()) for x in pattern.gradual_items]
         for n in range(len(idx)):
             for m in range(n + 1, len(idx)):
                 i = idx[n]
@@ -171,18 +186,19 @@ class GradACO:
                 p_matrix[j][i] += 1
         return p_matrix
 
-    def validate_gp(self, pattern):
+    @staticmethod
+    def validate_gp(d_set, pattern):
         # pattern = [('2', '+'), ('4', '+')]
-        min_supp = self.d_set.thd_supp
-        n = self.d_set.attr_size
+        min_supp = d_set.thd_supp
+        n = d_set.attr_size
         gen_pattern = GP()
         bin_arr = np.array([])
 
         for gi in pattern.gradual_items:
-            arg = np.argwhere(np.isin(self.d_set.valid_bins[:, 0], gi.gradual_item))
+            arg = np.argwhere(np.isin(d_set.valid_bins[:, 0], gi.gradual_item))
             if len(arg) > 0:
                 i = arg[0][0]
-                valid_bin = self.d_set.valid_bins[i]
+                valid_bin = d_set.valid_bins[i]
                 if bin_arr.size <= 0:
                     bin_arr = np.array([valid_bin[1], valid_bin[1]])
                     gen_pattern.add_gradual_item(gi)
@@ -254,16 +270,16 @@ def init(f_path, min_supp, cores):
         # plt.show()
 
         wr_line = "Algorithm: ACO-GRAANK (v4.0)\n"
-        wr_line += "No. of (dataset) attributes: " + str(ac.d_set.col_count) + '\n'
-        wr_line += "No. of (dataset) tuples: " + str(ac.d_set.row_count) + '\n'
-        wr_line += "Evaporation factor: " + str(ac.e_factor) + '\n'
+        wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
+        wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
+        wr_line += "Evaporation factor: " + str(out.e_factor) + '\n'
 
         wr_line += "Minimum support: " + str(min_supp) + '\n'
         wr_line += "Number of cores: " + str(num_cores) + '\n'
         wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
-        wr_line += "Number of iterations: " + str(ac.iteration_count) + '\n\n'
+        wr_line += "Number of iterations: " + str(out.iteration_count) + '\n\n'
 
-        for txt in ac.d_set.titles:
+        for txt in out.titles:
             try:
                 wr_line += (str(txt.key) + '. ' + str(txt.value.decode()) + '\n')
             except AttributeError:
@@ -279,7 +295,7 @@ def init(f_path, min_supp, cores):
         # wr_line += str(ac.p_matrix)
         # ac.plot_pheromone_matrix()
         wr_line += '\n\nIterations \n'
-        wr_line += out.iterations
+        wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:
         wr_line = "Failed: " + str(error)
