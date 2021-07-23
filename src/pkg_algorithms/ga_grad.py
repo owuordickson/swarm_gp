@@ -12,6 +12,7 @@ Breath-First Search for gradual patterns (GA-GRAANK)
 
 CHANGES:
 1. uses normal functions
+2. updated cost function to use Binary Array of GPs
 
 """
 import numpy as np
