@@ -13,12 +13,14 @@ Breath-First Search for gradual patterns (PSO-GRAANK)
 CHANGES:
 1. uses normal functions
 2. updated fitness function to use Binary Array of GPs
+3. used decimal - binary conversion
 
 
 """
 import numpy as np
 import random
 from ypstruct import structure
+import matplotlib.pyplot as plt
 
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
@@ -39,6 +41,8 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
         return []
 
     it_count = 0
+    min_position = 0
+    max_position = int(''.join(['1']*len(attr_keys)), 2)
 
     # Empty particle template
     empty_particle = structure()
@@ -52,15 +56,13 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     # Initialize Population
     particle_pop = empty_particle.repeat(n_particles)
     for i in range(n_particles):
-        particle_pop[i].position = build_gp_position(attr_keys)
-        particle_pop[i].fitness = float('inf')  # fitness_function(pbest_pop[i].position, attr_keys, d_set)
-        # if pbest_pop[i].fitness < best_particle.fitness:
-        #     best_particle = pbest_pop[i].deepcopy()
+        particle_pop[i].position = random.randrange((max_position + 1))  # build_gp_position(attr_keys)
+        particle_pop[i].fitness = float('inf')
 
     pbest_pop = particle_pop.copy()
     gbest_particle = pbest_pop[0]
 
-    velocity_vector = ([np.zeros((len(attr_keys),)) for _ in range(n_particles)])
+    velocity_vector = np.zeros(n_particles)
     best_fitness_arr = np.empty(max_iteration)
     best_patterns = []
     str_plt = ''
@@ -70,7 +72,10 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
         # while repeated < 1:
         for i in range(n_particles):
             # UPDATED
-            particle_pop[i].fitness = fitness_function(particle_pop[i].position, attr_keys, d_set)
+            if particle_pop[i].position < min_position or particle_pop[i].position > max_position:
+                particle_pop[i].fitness = 1
+            else:
+                particle_pop[i].fitness = fitness_function(particle_pop[i].position, attr_keys, d_set)
             if pbest_pop[i].fitness > particle_pop[i].fitness:
                 pbest_pop[i].fitness = particle_pop[i].fitness
                 pbest_pop[i].position = particle_pop[i].position
@@ -84,14 +89,11 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
             best_particle = gbest_particle.deepcopy()
 
         for i in range(n_particles):
-            x1 = np.dot(velocity, velocity_vector[i])
-            x2 = np.dot(coeff_p, random.random())
-            x3 = np.dot(coeff_g, random.random())
-
-            x4 = (pbest_pop[i].position - particle_pop[i].position)
-            x5 = (gbest_particle.position - particle_pop[i].position)
-            new_velocity = x1 + np.dot(x2, x4) + np.dot(x3, x5)
+            new_velocity = (velocity * velocity_vector[i]) + \
+                           (coeff_p * random.random()) * (pbest_pop[i].position - particle_pop[i].position) + \
+                           (coeff_g * random.random()) * (gbest_particle.position - particle_pop[i].position)
             particle_pop[i].position = particle_pop[i].position + new_velocity
+            # print(particle_pop[i].position)
 
         best_gp = validate_gp(d_set, decode_gp(attr_keys, best_particle.position))
         is_present = is_duplicate(best_gp, best_patterns)
@@ -149,7 +151,7 @@ def fitness_function(position, attr_keys, d_set):
     #    if gp.support <= thd_supp:
     #        return np.inf
     #    return round((1 / gp.support), 2)
-    print(position)
+    # print(position)
     bin_sum = compute_bin_sum(d_set, decode_gp(attr_keys, position))
     if bin_sum > 0:
         cost = (1 / bin_sum)
@@ -162,8 +164,12 @@ def decode_gp(attr_keys, position):
     temp_gp = GP()
     if position is None:
         return temp_gp
-    for i in range(position.size):
-        gene_val = round(position[i])
+
+    bin_str = bin(int(position))[2:]
+    bin_arr = np.array(list(bin_str), dtype=int)
+
+    for i in range(bin_arr.size):
+        gene_val = bin_arr[i]  # round(position[i])
         if gene_val >= 1:
             gi = GI.parse_gi(attr_keys[i])
             if not temp_gp.contains_attr(gi):
@@ -252,14 +258,14 @@ def init(f_path, min_supp, cores):
         list_gp = out.best_patterns
 
         # Results
-        # plt.plot(out.best_pos)
-        # plt.semilogy(out.best_pos)
-        # plt.xlim(0, pso.max_it)
-        # plt.xlabel('Iterations')
-        # plt.ylabel('Global Best Position')
-        # plt.title('Pattern Swarm Algorithm (PSO)')
-        # plt.grid(True)
-        # plt.show()
+        plt.plot(out.best_pos)
+        plt.semilogy(out.best_pos)
+        plt.xlim(0, out.max_it)
+        plt.xlabel('Iterations')
+        plt.ylabel('Global Best Position')
+        plt.title('Pattern Swarm Algorithm (PSO)')
+        plt.grid(True)
+        plt.show()
 
         wr_line = "Algorithm: PSO-GRAANK (v1.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
