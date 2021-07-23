@@ -40,17 +40,36 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
 
     it_count = 0
 
-    particle_position_vector = np.array([build_gp_gene(attr_keys) for _ in range(n_particles)])
-    pbest_position = particle_position_vector
-    pbest_fitness_value = np.array([float(1) for _ in range(n_particles)])
-    gbest_fitness_value = float(1)
-    gbest_position = particle_position_vector[0]  # np.array([float('inf'), float('inf')])
+    # Empty particle template
+    empty_particle = structure
+    empty_particle.position = None
+    empty_particle.fitness = None
+
+    # Best particle (ever found)
+    best_particle = empty_particle.deepcopy()
+    best_particle.fitness = 1
+
+    # Initialize Population
+    pbest_pop = empty_particle.repeat(n_particles)
+    for i in range(n_particles):
+        pbest_pop[i].position = build_gp_gene(attr_keys)
+        pbest_pop[i].fitness = fitness_function(pbest_pop[i].position, attr_keys, d_set)
+        if pbest_pop[i].fitness < best_particle.fitness:
+            best_particle.fitness = pbest_pop[i].deepcopy()
+    gbest_particle = best_particle
 
     velocity_vector = ([np.zeros((len(attr_keys),)) for _ in range(n_particles)])
     best_fitness_arr = np.empty(max_iteration)
     # best_fitness = np.inf
     best_patterns = []
     str_plt = ''
+
+    # TO BE REMOVED
+    particle_position_vector = np.array([build_gp_gene(attr_keys) for _ in range(n_particles)])
+    pbest_position = particle_position_vector
+    pbest_fitness_value = np.array([float('inf') for _ in range(n_particles)])
+    gbest_fitness_value = float('inf')
+    gbest_position = particle_position_vector[0]  # np.array([float('inf'), float('inf')])
 
     repeated = 0
     while it_count < max_iteration:

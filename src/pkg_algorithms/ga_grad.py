@@ -61,7 +61,7 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
 
     # Best Cost of Iteration
     best_costs = np.empty(max_iteration)
-    best_genes = []
+    # best_genes = []
     best_patterns = []
     str_plt = ''
 
@@ -121,7 +121,7 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
             # Show Iteration Information
             # Store Best Cost
             best_costs[it_count] = best_sol.cost
-            best_genes.append(best_sol.gene)
+            # best_genes.append(best_sol.gene)
             # print("Iteration {}: Best Cost = {}".format(it_count, best_costs[it_count]))
             str_plt += "Iteration {}: Best Cost: {} \n".format(it_count, best_costs[it_count])
         except IndexError:
