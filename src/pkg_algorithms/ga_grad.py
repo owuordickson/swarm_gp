@@ -29,7 +29,6 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
-    # attr_index = d_set.attr_cols
     attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
 
     if d_set.no_bins:
