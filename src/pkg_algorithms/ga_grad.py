@@ -13,6 +13,7 @@ Breath-First Search for gradual patterns (GA-GRAANK)
 CHANGES:
 1. uses normal functions
 2. updated cost function to use Binary Array of GPs
+3. used decimal <-> binary conversion for best_position <-> best_gradual_pattern (item-set combination)
 
 """
 import numpy as np
@@ -38,13 +39,20 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
     # cost_func
 
     # Parameters
-    it_count = 0
     # pc: Proportion of children (if its 1, then nc == npop
+    it_count = 0
+    var_min = 0
+    var_max = int(''.join(['1'] * len(attr_keys)), 2)
+    nvar = cfg.N_VAR
+
     nc = int(np.round(pc * n_pop / 2) * 2)  # Number of children. np.round is used to get even number of children
+    gamma = cfg.GAMMA
+    mu = cfg.MU
+    sigma = cfg.SIGMA
 
     # Empty Individual Template
     empty_individual = structure()
-    empty_individual.gene = None
+    empty_individual.position = None
     empty_individual.cost = None
 
     # Best Solution Ever Found
@@ -54,8 +62,8 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
     # Initialize Population
     pop = empty_individual.repeat(n_pop)
     for i in range(n_pop):
-        pop[i].gene = build_gp_gene(attr_keys)
-        pop[i].cost = cost_func(pop[i].gene, attr_keys, d_set)
+        pop[i].position = np.random.uniform(var_min, var_max, nvar)
+        pop[i].cost = cost_func(pop[i].position, attr_keys, d_set)
         if pop[i].cost < best_sol.cost:
             best_sol = pop[i].deepcopy()
 
@@ -77,23 +85,23 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
             p2 = pop[q[1]]
 
             # Perform Crossover
-            c1, c2 = crossover(p1, p2)
+            c1, c2 = crossover(p1, p2, gamma)
 
             # Perform Mutation
-            c1 = mutate(c1)
-            c2 = mutate(c2)
+            c1 = mutate(c1, mu, sigma)
+            c2 = mutate(c2, mu, sigma)
 
             # Apply Bound
-            # apply_bound(c1, var_min, var_max)
-            # apply_bound(c2, var_min, var_max)
+            apply_bound(c1, var_min, var_max)
+            apply_bound(c2, var_min, var_max)
 
             # Evaluate First Offspring
-            c1.cost = cost_func(c1.gene, attr_keys, d_set)
+            c1.cost = cost_func(c1.position, attr_keys, d_set)
             if c1.cost < best_sol.cost:
                 best_sol = c1.deepcopy()
 
             # Evaluate Second Offspring
-            c2.cost = cost_func(c2.gene, attr_keys, d_set)
+            c2.cost = cost_func(c2.position, attr_keys, d_set)
             if c2.cost < best_sol.cost:
                 best_sol = c2.deepcopy()
 
@@ -106,7 +114,7 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
         pop = sorted(pop, key=lambda x: x.cost)
         pop = pop[0:n_pop]
 
-        best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.gene))
+        best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
         is_present = is_duplicate(best_gp, best_patterns)
         is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
         if is_present or is_sub:
@@ -121,8 +129,6 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
             # Show Iteration Information
             # Store Best Cost
             best_costs[it_count] = best_sol.cost
-            # best_genes.append(best_sol.gene)
-            # print("Iteration {}: Best Cost = {}".format(it_count, best_costs[it_count]))
             str_plt += "Iteration {}: Best Cost: {} \n".format(it_count, best_costs[it_count])
         except IndexError:
             pass
@@ -146,21 +152,7 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
     return out
 
 
-def build_gp_gene(attr_keys):
-    a = attr_keys
-    temp_gene = np.random.choice(a=[0, 1], size=(len(a),))
-    return temp_gene
-
-
 def cost_func(gene, attr_keys, d_set):
-    # print(str(gene) + ': ' + str(np.sum(gene)))
-    # gp = decode_gp(attr_keys, gene, d_set)
-    # if gp is None:
-    #    return np.inf
-    # else:
-    #    if gp.support <= thd_supp:
-    #        return np.inf
-    #    return round((1 / gp.support), 2)
     bin_sum = compute_bin_sum(d_set, decode_gp(attr_keys, gene))
     if bin_sum > 0:
         cost = (1 / bin_sum)
@@ -169,31 +161,38 @@ def cost_func(gene, attr_keys, d_set):
     return cost
 
 
-def crossover(p_1, p_2):
-    c_1 = p_1.copy()
-    c_2 = p_1.copy()
-    choice = np.random.randint(2, size=c_1.gene.size).reshape(c_1.gene.shape).astype(bool)
-    c_1.gene = np.where(choice, p_1.gene, p_2.gene)
-    c_2.gene = np.where(choice, p_2.gene, p_1.gene)
-    return c_1, c_2
+def crossover(p1, p2, gamma=0.1):
+    c1 = p1.deepcopy()
+    c2 = p2.deepcopy()
+    alpha = np.random.uniform(-gamma, 1+gamma, *c1.position.shape)
+    c1.position = alpha*p1.position + (1-alpha)*p2.position
+    c2.position = alpha*p2.position + (1-alpha)*p1.position
+    return c1, c2
 
 
-def mutate(p_x):
-    p_y = p_x.copy()
-    rand_val = np.random.randint(0, p_x.gene.shape[0])
-    if p_y.gene[rand_val] == 0:
-        p_y.gene[rand_val] = 1
-    else:
-        p_y.gene[rand_val] = 0
-    return p_y
+def mutate(x, mu, sigma):
+    y = x.deepcopy()
+    flag = np.random.rand(*x.position.shape) <= mu
+    ind = np.argwhere(flag)
+    y.position[ind] += sigma*np.random.rand(*ind.shape)
+    return y
 
 
-def decode_gp(attr_keys, gene):
+def apply_bound(x, var_min, var_max):
+    x.position = np.maximum(x.position, var_min)
+    x.position = np.minimum(x.position, var_max)
+
+
+def decode_gp(attr_keys, position):
     temp_gp = GP()
-    if gene is None:
+    if position is None:
         return temp_gp
-    for i in range(gene.size):
-        gene_val = gene[i]
+
+    bin_str = bin(int(position))[2:]
+    bin_arr = np.array(list(bin_str), dtype=int)
+
+    for i in range(bin_arr.size):
+        gene_val = bin_arr[i]
         if gene_val == 1:
             gi = GI.parse_gi(attr_keys[i])
             if not temp_gp.contains_attr(gi):

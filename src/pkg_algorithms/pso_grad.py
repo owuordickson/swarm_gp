@@ -13,7 +13,7 @@ Breath-First Search for gradual patterns (PSO-GRAANK)
 CHANGES:
 1. uses normal functions
 2. updated fitness function to use Binary Array of GPs
-3. used decimal - binary conversion
+3. used decimal <-> binary conversion for best_position <-> best_gradual_pattern (item-set combination)
 
 
 """
@@ -41,8 +41,9 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
         return []
 
     it_count = 0
-    min_position = 0
-    max_position = int(''.join(['1']*len(attr_keys)), 2)
+    var_min = 0
+    var_max = int(''.join(['1']*len(attr_keys)), 2)
+    nvar = cfg.N_VAR
 
     # Empty particle template
     empty_particle = structure()
@@ -56,7 +57,7 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     # Initialize Population
     particle_pop = empty_particle.repeat(n_particles)
     for i in range(n_particles):
-        particle_pop[i].position = random.randrange((max_position + 1))  # build_gp_position(attr_keys)
+        particle_pop[i].position = np.random.uniform(var_min, var_max, nvar)
         particle_pop[i].fitness = float('inf')
 
     pbest_pop = particle_pop.copy()
@@ -72,10 +73,11 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
         # while repeated < 1:
         for i in range(n_particles):
             # UPDATED
-            if particle_pop[i].position < min_position or particle_pop[i].position > max_position:
+            if particle_pop[i].position < var_min or particle_pop[i].position > var_max:
                 particle_pop[i].fitness = 1
             else:
                 particle_pop[i].fitness = fitness_function(particle_pop[i].position, attr_keys, d_set)
+
             if pbest_pop[i].fitness > particle_pop[i].fitness:
                 pbest_pop[i].fitness = particle_pop[i].fitness
                 pbest_pop[i].position = particle_pop[i].position
@@ -93,7 +95,6 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
                            (coeff_p * random.random()) * (pbest_pop[i].position - particle_pop[i].position) + \
                            (coeff_g * random.random()) * (gbest_particle.position - particle_pop[i].position)
             particle_pop[i].position = particle_pop[i].position + new_velocity
-            # print(particle_pop[i].position)
 
         best_gp = validate_gp(d_set, decode_gp(attr_keys, best_particle.position))
         is_present = is_duplicate(best_gp, best_patterns)
@@ -108,8 +109,7 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
 
         try:
             # Show Iteration Information
-            best_fitness_arr[it_count] = best_particle.fitness  # best_fitness
-            # print("Iteration {}: Best Position = {}".format(it_count, best_fitness_arr[it_count]))
+            best_fitness_arr[it_count] = best_particle.fitness
             str_plt += "Iteration {}: Best Fitness Value: {} \n".format(it_count, best_fitness_arr[it_count])
         except IndexError:
             pass
@@ -138,20 +138,7 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     return out
 
 
-def build_gp_position(attr_keys):
-    attr = attr_keys
-    temp_gene = np.random.choice(a=[0, 1], size=(len(attr),))
-    return temp_gene
-
-
 def fitness_function(position, attr_keys, d_set):
-    # if gp is None:
-    #    return np.inf
-    # else:
-    #    if gp.support <= thd_supp:
-    #        return np.inf
-    #    return round((1 / gp.support), 2)
-    # print(position)
     bin_sum = compute_bin_sum(d_set, decode_gp(attr_keys, position))
     if bin_sum > 0:
         cost = (1 / bin_sum)
@@ -169,8 +156,8 @@ def decode_gp(attr_keys, position):
     bin_arr = np.array(list(bin_str), dtype=int)
 
     for i in range(bin_arr.size):
-        gene_val = bin_arr[i]  # round(position[i])
-        if gene_val >= 1:
+        gene_val = bin_arr[i]
+        if gene_val == 1:
             gi = GI.parse_gi(attr_keys[i])
             if not temp_gp.contains_attr(gi):
                 temp_gp.add_gradual_item(gi)
