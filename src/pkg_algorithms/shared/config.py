@@ -7,7 +7,7 @@ MAX_ITERATIONS = 100
 EVAPORATION_FACTOR = 0.1
 
 # GA-GRAD Configurations:
-N_POPULATION = 3
+N_POPULATION = 5
 PC = 0.5
 
 # PSO-GRAD Configurations:
