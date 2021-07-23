@@ -17,6 +17,7 @@ Modification:
 """
 import numpy as np
 from ypstruct import structure
+import matplotlib.pyplot as plt
 
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
@@ -25,15 +26,6 @@ from .shared import config as cfg
 
 
 class GradACO:
-
-    def __init__(self, f_path, min_supp):
-        self.d_set = Dataset(f_path, min_supp)
-        self.d_set.init_gp_attributes()
-        self.attr_index = self.d_set.attr_cols
-        self.e_factor = cfg.EVAPORATION_FACTOR  # evaporation factor
-        self.max_it = cfg.MAX_ITERATIONS
-        self.iteration_count = 0
-        self.d, self.attr_keys = self.generate_d()  # distance matrix (d) & attributes corresponding to d
 
     @staticmethod
     def generate_d(valid_bins):
@@ -63,14 +55,12 @@ class GradACO:
         # 0. Initialize and prepare data set
         d_set = Dataset(f_path, min_supp)
         d_set.init_gp_attributes()
-        # attr_index = d_set.attr_cols
-        # e_factor = evaporation_factor
         d, attr_keys = GradACO.generate_d(d_set.valid_bins)  # distance matrix (d) & attributes corresponding to d
 
         a = d_set.attr_size
         winner_gps = list()  # subsets
         loser_gps = list()  # supersets
-        str_winner_gps = list()  # subsets
+        # str_winner_gps = list()  # subsets
         repeated = 0
         it_count = 0
         max_it = max_iteration
@@ -125,6 +115,11 @@ class GradACO:
                             loser_gps.append(gen_gp)
                     if set(gen_gp.get_pattern()) != set(rand_gp.get_pattern()):
                         loser_gps.append(rand_gp)
+
+                    # if gen_gp.support > 0:
+                    #    best_cost = round((1 / gen_gp.support), 2)
+                    # else:
+                    #    best_cost = np.inf
                 else:
                     repeated += 1
             # it_count += 1
@@ -143,6 +138,7 @@ class GradACO:
         out.best_patterns = winner_gps
         out.str_iterations = str_plt
         out.iteration_count = it_count
+        out.max_iteration = max_it
         out.titles = d_set.titles
         out.col_count = d_set.col_count
         out.row_count = d_set.row_count
@@ -256,15 +252,13 @@ def init(f_path, min_supp, cores):
         else:
             num_cores = Profile.get_num_cores()
 
-        ac = GradACO(f_path, min_supp)
-        # list_gp = ac.run_ant_colony()
-        out = ac.run_ant_colony()
+        out = GradACO.run_ant_colony(f_path, min_supp)
         list_gp = out.best_patterns
 
         # Results
         # plt.plot(out.best_costs)
         # plt.semilogy(out.best_costs)
-        # plt.xlim(0, ac.max_it)
+        # plt.xlim(0, out.max_iteration)
         # plt.xlabel('Iterations')
         # plt.ylabel('Best Cost')
         # plt.title('Ant Colony optimization (ACO)')

@@ -2,7 +2,7 @@
 import config as cfg
 import time
 import tracemalloc
-from src.pkg_algorithms.aco_grad_v2 import init
+from src.pkg_algorithms.aco_grad_v4 import init
 from src.pkg_algorithms.shared.profile import Profile
 
 # res = pkg_init(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
