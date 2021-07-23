@@ -41,68 +41,59 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     it_count = 0
 
     # Empty particle template
-    empty_particle = structure
+    empty_particle = structure()
     empty_particle.position = None
     empty_particle.fitness = None
 
     # Best particle (ever found)
     best_particle = empty_particle.deepcopy()
-    best_particle.fitness = 1
+    best_particle.fitness = float('inf')
 
     # Initialize Population
-    pbest_pop = empty_particle.repeat(n_particles)
+    particle_pop = empty_particle.repeat(n_particles)
     for i in range(n_particles):
-        pbest_pop[i].position = build_gp_gene(attr_keys)
-        pbest_pop[i].fitness = fitness_function(pbest_pop[i].position, attr_keys, d_set)
-        if pbest_pop[i].fitness < best_particle.fitness:
-            best_particle.fitness = pbest_pop[i].deepcopy()
-    gbest_particle = best_particle
+        particle_pop[i].position = build_gp_position(attr_keys)
+        particle_pop[i].fitness = float('inf')  # fitness_function(pbest_pop[i].position, attr_keys, d_set)
+        # if pbest_pop[i].fitness < best_particle.fitness:
+        #     best_particle = pbest_pop[i].deepcopy()
+
+    pbest_pop = particle_pop.copy()
+    gbest_particle = pbest_pop[0]
 
     velocity_vector = ([np.zeros((len(attr_keys),)) for _ in range(n_particles)])
     best_fitness_arr = np.empty(max_iteration)
-    # best_fitness = np.inf
     best_patterns = []
     str_plt = ''
-
-    # TO BE REMOVED
-    particle_position_vector = np.array([build_gp_gene(attr_keys) for _ in range(n_particles)])
-    pbest_position = particle_position_vector
-    pbest_fitness_value = np.array([float('inf') for _ in range(n_particles)])
-    gbest_fitness_value = float('inf')
-    gbest_position = particle_position_vector[0]  # np.array([float('inf'), float('inf')])
 
     repeated = 0
     while it_count < max_iteration:
         # while repeated < 1:
         for i in range(n_particles):
-            fitness_candidate = fitness_function(particle_position_vector[i], attr_keys, d_set)
+            # UPDATED
+            particle_pop[i].fitness = fitness_function(particle_pop[i].position, attr_keys, d_set)
+            if pbest_pop[i].fitness > particle_pop[i].fitness:
+                pbest_pop[i].fitness = particle_pop[i].fitness
+                pbest_pop[i].position = particle_pop[i].position
 
-            if pbest_fitness_value[i] > fitness_candidate:
-                pbest_fitness_value[i] = fitness_candidate
-                pbest_position[i] = particle_position_vector[i]
-
-            if gbest_fitness_value > fitness_candidate:
-                gbest_fitness_value = fitness_candidate
-                gbest_position = particle_position_vector[i]
-        best_fitness = fitness_function(gbest_position, attr_keys, d_set)
+            if gbest_particle.fitness > particle_pop[i].fitness:
+                gbest_particle.fitness = particle_pop[i].fitness
+                gbest_particle.position = particle_pop[i].position
         # if abs(gbest_fitness_value - self.target) < self.target_error:
         #    break
+        if best_particle.fitness > gbest_particle.fitness:
+            best_particle = gbest_particle.deepcopy()
 
         for i in range(n_particles):
             x1 = np.dot(velocity, velocity_vector[i])
             x2 = np.dot(coeff_p, random.random())
-            x3 = (pbest_position[i] - particle_position_vector[i])
-            x4 = np.dot(coeff_g, random.random())
-            x5 = (gbest_position - particle_position_vector[i])
-            # new_velocity = (self.W * velocity_vector[i]) + (self.c1 * random.random()) * (
-            #        pbest_position[i] - particle_position_vector[i]) + (self.c2 * random.random()) * (
-            #                       gbest_position - particle_position_vector[i])
-            new_velocity = x1 + np.dot(x2, x3) + np.dot(x4, x5)
-            new_position = new_velocity + particle_position_vector[i]
-            particle_position_vector[i] = new_position
+            x3 = np.dot(coeff_g, random.random())
 
-        best_gp = validate_gp(d_set, decode_gp(attr_keys, gbest_position))
-        # best_gp.support = float(1 / best_fitness)
+            x4 = (pbest_pop[i].position - particle_pop[i].position)
+            x5 = (gbest_particle.position - particle_pop[i].position)
+            new_velocity = x1 + np.dot(x2, x4) + np.dot(x3, x5)
+            particle_pop[i].position = particle_pop[i].position + new_velocity
+
+        best_gp = validate_gp(d_set, decode_gp(attr_keys, best_particle.position))
         is_present = is_duplicate(best_gp, best_patterns)
         is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
         if is_present or is_sub:
@@ -111,12 +102,11 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
             if best_gp.support >= min_supp:
                 best_patterns.append(best_gp)
             else:
-                # gbest_fitness_value = 1
-                best_fitness = 1
+                best_particle.fitness = 1
 
         try:
             # Show Iteration Information
-            best_fitness_arr[it_count] = best_fitness
+            best_fitness_arr[it_count] = best_particle.fitness  # best_fitness
             # print("Iteration {}: Best Position = {}".format(it_count, best_fitness_arr[it_count]))
             str_plt += "Iteration {}: Best Fitness Value: {} \n".format(it_count, best_fitness_arr[it_count])
         except IndexError:
@@ -125,9 +115,9 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
 
     # Output
     out = structure()
-    out.pop = particle_position_vector
+    out.pop = particle_pop
     out.best_pos = best_fitness_arr
-    out.gbest_position = gbest_position
+    out.gbest_position = gbest_particle.position
     out.best_patterns = best_patterns
 
     out.best_patterns = best_patterns
@@ -146,20 +136,21 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     return out
 
 
-def build_gp_gene(attr_keys):
+def build_gp_position(attr_keys):
     attr = attr_keys
     temp_gene = np.random.choice(a=[0, 1], size=(len(attr),))
     return temp_gene
 
 
-def fitness_function(gene, attr_keys, d_set):
+def fitness_function(position, attr_keys, d_set):
     # if gp is None:
     #    return np.inf
     # else:
     #    if gp.support <= thd_supp:
     #        return np.inf
     #    return round((1 / gp.support), 2)
-    bin_sum = compute_bin_sum(d_set, decode_gp(attr_keys, gene))
+    print(position)
+    bin_sum = compute_bin_sum(d_set, decode_gp(attr_keys, position))
     if bin_sum > 0:
         cost = (1 / bin_sum)
     else:
@@ -167,12 +158,12 @@ def fitness_function(gene, attr_keys, d_set):
     return cost
 
 
-def decode_gp(attr_keys, gene):
+def decode_gp(attr_keys, position):
     temp_gp = GP()
-    if gene is None:
+    if position is None:
         return temp_gp
-    for i in range(gene.size):
-        gene_val = round(gene[i])
+    for i in range(position.size):
+        gene_val = round(position[i])
         if gene_val >= 1:
             gi = GI.parse_gi(attr_keys[i])
             if not temp_gp.contains_attr(gi):
