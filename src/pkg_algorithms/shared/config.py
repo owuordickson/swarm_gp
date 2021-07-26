@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Global Configurations
-MAX_ITERATIONS = 500
+MAX_ITERATIONS = 100
 N_VAR = 1
 
 # ACO-GRAD Configurations:
@@ -23,4 +23,4 @@ TARGET_ERROR = 1e-6
 N_PARTICLES = 5
 
 # PLS-GRAD Configurations
-STEP_SIZE = 0.9
+STEP_SIZE = 0.1
