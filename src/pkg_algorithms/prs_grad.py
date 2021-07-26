@@ -45,15 +45,14 @@ def run_pure_random_search(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS):
     nvar = cfg.N_VAR
 
     # Empty Individual Template
-    solution = structure()
-    solution.position = None
-    solution.cost = float('inf')
-
-    best_sol = solution.deepcopy()
-    best_sol.cost = float('inf')
+    candidate = structure()
+    candidate.position = None
+    candidate.cost = float('inf')
 
     # INITIALIZE
+    best_sol = candidate.deepcopy()
     best_sol.position = np.random.uniform(var_min, var_max, nvar)
+    best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
 
     # Best Cost of Iteration
     best_costs = np.empty(max_iteration)
@@ -62,14 +61,13 @@ def run_pure_random_search(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS):
 
     repeated = 0
     while it_count < max_iteration:
-        best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
 
-        solution.position = ((var_min + random.random()) * (var_max - var_min))
-        apply_bound(solution, var_min, var_max)
-        solution.cost = cost_func(solution.position, attr_keys, d_set)
+        candidate.position = ((var_min + random.random()) * (var_max - var_min))
+        apply_bound(candidate, var_min, var_max)
+        candidate.cost = cost_func(candidate.position, attr_keys, d_set)
 
-        if solution.cost < best_sol.cost:
-            best_sol = solution.deepcopy()
+        if candidate.cost < best_sol.cost:
+            best_sol = candidate.deepcopy()
 
         best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
         is_present = is_duplicate(best_gp, best_patterns)
