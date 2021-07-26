@@ -69,17 +69,10 @@ def run_hill_climbing(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, step_s
         # take a step
         candidate.position = None
         while candidate.position is None or not apply_bound(candidate, var_min, var_max):
-            candidate.position = best_sol.position + (random.random() * step_size * best_sol.position)
-            print(str(candidate.position) + '+ ' + str(random.random() * step_size) + '= ' + str(best_sol.position) )
-        # evaluate candidate.position point
+            candidate.position = best_sol.position + (np.random.uniform(var_min, var_max) * step_size)
         candidate.cost = cost_func(candidate.position, attr_keys, d_set)
-        # check if we should keep the new point
         if candidate.cost < best_sol.cost:
-            # store the new point
             best_sol = candidate.deepcopy()
-            # report progress
-            print('>%d f(%s) = %.5f' % (it_count, best_sol.position, best_sol.cost))
-        # it_count += 1
 
         best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
         is_present = is_duplicate(best_gp, best_patterns)
