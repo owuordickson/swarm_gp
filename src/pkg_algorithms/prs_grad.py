@@ -234,7 +234,7 @@ def init(f_path, min_supp, cores):
         plt.xlim(0, out.max_it)
         plt.xlabel('Iterations')
         plt.ylabel('Best Cost')
-        plt.title('Genetic Algorithm (GA)')
+        plt.title('Pure Random Search Algorithm (PRS)')
         plt.grid(True)
         plt.show()
 
