@@ -247,7 +247,6 @@ def init(f_path, min_supp, cores):
 
         # Results
         plt.plot(out.best_pos)
-        plt.semilogy(out.best_pos)
         plt.xlim(0, out.max_it)
         plt.xlabel('Iterations')
         plt.ylabel('Global Best Position')

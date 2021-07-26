@@ -253,7 +253,6 @@ def init(f_path, min_supp, cores):
 
         # Results
         # plt.plot(out.best_costs)
-        # plt.semilogy(out.best_costs)
         # plt.xlim(0, out.max_iteration)
         # plt.xlabel('Iterations')
         # plt.ylabel('Best Cost')
