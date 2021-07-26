@@ -10,6 +10,8 @@
 Breath-First Search for gradual patterns using Pure Local Search (PLS-GRAD).
 PLS is used to learn gradual pattern candidates.
 
+Adopted from: https://machinelearningmastery.com/iterated-local-search-from-scratch-in-python/
+
 CHANGES:
 1.
 
@@ -69,7 +71,7 @@ def run_hill_climbing(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, step_s
         # take a step
         candidate.position = None
         while candidate.position is None or not apply_bound(candidate, var_min, var_max):
-            candidate.position = best_sol.position + (np.random.uniform(var_min, var_max) * step_size)
+            candidate.position = best_sol.position + (random.randrange(var_min, var_max) * step_size)
         candidate.cost = cost_func(candidate.position, attr_keys, d_set)
         if candidate.cost < best_sol.cost:
             best_sol = candidate.deepcopy()
