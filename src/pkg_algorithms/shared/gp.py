@@ -80,7 +80,7 @@ class GP:
         self.support = 0
 
     def set_support(self, support):
-        self.support = round(support, 3)
+        self.support = support
 
     def add_gradual_item(self, item):
         if item.symbol == '-' or item.symbol == '+':

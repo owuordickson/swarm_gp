@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # Global Configurations
-MAX_ITERATIONS = 500
-N_VAR = 1
+MAX_ITERATIONS = 100
+N_VAR = 5
 
 # ACO-GRAD Configurations:
 EVAPORATION_FACTOR = 0.1

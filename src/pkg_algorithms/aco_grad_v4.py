@@ -106,7 +106,7 @@ def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, 
                     if gen_gp.support >= min_supp:
                         pheromones = update_pheromones(attr_keys, gen_gp, pheromones)
                         winner_gps.append(gen_gp)
-                        best_cost = round((1 / gen_gp.support), 2)
+                        best_cost =  gen_gp.support
                     else:
                         loser_gps.append(gen_gp)
                 if set(gen_gp.get_pattern()) != set(rand_gp.get_pattern()):
@@ -280,7 +280,7 @@ def init(f_path, min_supp, cores):
         wr_line += str("\nPattern : Support" + '\n')
 
         for gp in list_gp:
-            wr_line += (str(gp.to_string()) + ' : ' + str(gp.support) + '\n')
+            wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
         # wr_line += "\nPheromone Matrix\n"
         # wr_line += str(ac.p_matrix)

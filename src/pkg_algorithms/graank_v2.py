@@ -133,7 +133,7 @@ def init(f_path, min_supp, cores, eq=False):
         wr_line += str("\nPattern : Support" + '\n')
 
         for gp in list_gp:
-            wr_line += (str(gp.to_string()) + ' : ' + str(gp.support) + '\n')
+            wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
         return wr_line
     except ArithmeticError as error:
