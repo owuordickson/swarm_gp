@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 @author: "Dickson Owuor"
-@credits: "Thomas Runkler, Edmond Menya, and Anne Laurent,"
+@credits: "Thomas Runkler, and Anne Laurent,"
 @license: "MIT"
-@version: "1.0"
+@version: "2.0"
 @email: "owuordickson@gmail.com"
 @created: "29 April 2021"
 @modified: "23 July 2021"
 
-Breath-First Search for gradual patterns (GA-GRAANK)
+Breath-First Search for gradual patterns using Genetic Algorithm (GA-GRAD).
+GA is used to learn gradual pattern candidates.
 
 CHANGES:
 1. uses normal functions
@@ -301,7 +302,7 @@ def init(f_path, min_supp, cores):
         plt.grid(True)
         plt.show()
 
-        wr_line = "Algorithm: GA-GRAANK (v1.0)\n"
+        wr_line = "Algorithm: GA-GRAANK (v2.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
         wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
         wr_line += "Population size: " + str(out.n_pop) + '\n'
