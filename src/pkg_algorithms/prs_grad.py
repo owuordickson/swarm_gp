@@ -62,7 +62,7 @@ def run_pure_random_search(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS):
     while it_count < max_iteration:
         best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
 
-        solution.position = (var_min + random.random() * (var_max - var_min))
+        solution.position = ((var_min + random.random()) * (var_max - var_min))
         apply_bound(solution, var_min, var_max)
         solution.cost = cost_func(solution.position, attr_keys, d_set)
 
@@ -85,24 +85,23 @@ def run_pure_random_search(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS):
             # Store Best Cost
             best_costs[it_count] = best_sol.cost
             str_plt += "Iteration {}: Best Cost: {} \n".format(it_count, best_costs[it_count])
-            print("Iteration {}: Best Cost: {} \n".format(it_count, best_costs[it_count]))
         except IndexError:
             pass
         it_count += 1
 
-        # Output
-        out = structure()
-        out.best_sol = best_sol
-        out.best_costs = best_costs
-        out.best_patterns = best_patterns
-        out.str_iterations = str_plt
-        out.iteration_count = it_count
-        out.max_iteration = max_iteration
-        out.titles = d_set.titles
-        out.col_count = d_set.col_count
-        out.row_count = d_set.row_count
+    # Output
+    out = structure()
+    out.best_sol = best_sol
+    out.best_costs = best_costs
+    out.best_patterns = best_patterns
+    out.str_iterations = str_plt
+    out.iteration_count = it_count
+    out.max_iteration = max_iteration
+    out.titles = d_set.titles
+    out.col_count = d_set.col_count
+    out.row_count = d_set.row_count
 
-        return out
+    return out
 
 
 def cost_func(position, attr_keys, d_set):
