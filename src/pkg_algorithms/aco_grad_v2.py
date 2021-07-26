@@ -11,7 +11,7 @@
 Breath-First Search for gradual patterns (ACO-GRAANK)
 
 Modifications:
-1. uses static methods
+1. uses plain methods
 
 """
 
