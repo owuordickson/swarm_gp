@@ -10,6 +10,8 @@
 Breath-First Search for gradual patterns using Pure Random Search (PRS-GRAD).
 PRS is used to learn gradual pattern candidates.
 
+Adopted: https://medium.com/analytics-vidhya/how-does-random-search-algorithm-work-python-implementation-b69e779656d6
+
 CHANGES:
 1.
 
