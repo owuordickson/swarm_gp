@@ -77,8 +77,8 @@ def run_pure_random_search(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS):
         else:
             if best_gp.support >= min_supp:
                 best_patterns.append(best_gp)
-            else:
-                best_sol.cost = 1
+            # else:
+            #    best_sol.cost = 1
 
         try:
             # Show Iteration Information
@@ -105,7 +105,18 @@ def run_pure_random_search(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS):
 
 
 def cost_func(position, attr_keys, d_set):
-    bin_sum = compute_bin_sum(d_set, decode_gp(attr_keys, position))
+    pattern = decode_gp(attr_keys, position)
+    temp_bin = np.array([])
+    for gi in pattern.gradual_items:
+        arg = np.argwhere(np.isin(d_set.valid_bins[:, 0], gi.gradual_item))
+        if len(arg) > 0:
+            i = arg[0][0]
+            valid_bin = d_set.valid_bins[i]
+            if temp_bin.size <= 0:
+                temp_bin = valid_bin[1].copy()
+            else:
+                temp_bin = np.multiply(temp_bin, valid_bin[1])
+    bin_sum = np.sum(temp_bin)
     if bin_sum > 0:
         cost = (1 / bin_sum)
     else:
@@ -163,30 +174,6 @@ def validate_gp(d_set, pattern):
         return pattern
     else:
         return gen_pattern
-
-
-def compute_bin_sum(d_set, pattern):
-    temp_bin = np.array([])
-    # bin_arr = np.array([])
-    for gi in pattern.gradual_items:
-        arg = np.argwhere(np.isin(d_set.valid_bins[:, 0], gi.gradual_item))
-        if len(arg) > 0:
-            i = arg[0][0]
-            valid_bin = d_set.valid_bins[i]
-            if temp_bin.size <= 0:
-                temp_bin = valid_bin[1].copy()
-                # bin_arr = np.array([valid_bin[1], valid_bin[1]])
-                # gen_pattern.add_gradual_item(gi)
-            else:
-                temp_bin = np.multiply(temp_bin, valid_bin[1])
-                # bin_arr[1] = valid_bin[1].copy()
-                # temp_bin = np.multiply(bin_arr[0], bin_arr[1])
-                # supp = float(np.sum(temp_bin)) / float(n * (n - 1.0) / 2.0)
-                # if supp >= min_supp:
-                # bin_arr[0] = temp_bin.copy()
-                # gen_pattern.add_gradual_item(gi)
-                # gen_pattern.set_support(supp)
-    return np.sum(temp_bin)
 
 
 def check_anti_monotony(lst_p, pattern, subset=True):

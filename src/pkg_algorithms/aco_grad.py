@@ -80,13 +80,17 @@ def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, 
 
     # Best Cost of Iteration
     best_cost_arr = np.empty(max_it)
-    best_cost = np.inf
+    best_cost = 1
     str_plt = ''
 
     # 4. Iterations for ACO
     # while repeated < 1:
     while it_count < max_it:
         rand_gp, pheromones = generate_aco_gp(attr_keys, d, pheromones, evaporation_factor)
+        candidate_cost = cost_func(d_set, rand_gp)
+        if candidate_cost < best_cost:
+            best_cost = candidate_cost
+
         if len(rand_gp.gradual_items) > 1:
             # print(rand_gp.get_pattern())
             exits = is_duplicate(rand_gp, winner_gps, loser_gps)
@@ -106,19 +110,13 @@ def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, 
                     if gen_gp.support >= min_supp:
                         pheromones = update_pheromones(attr_keys, gen_gp, pheromones)
                         winner_gps.append(gen_gp)
-                        best_cost =  gen_gp.support
                     else:
                         loser_gps.append(gen_gp)
                 if set(gen_gp.get_pattern()) != set(rand_gp.get_pattern()):
                     loser_gps.append(rand_gp)
 
-                # if gen_gp.support > 0:
-                #    best_cost = round((1 / gen_gp.support), 2)
-                # else:
-                #    best_cost = np.inf
             else:
                 repeated += 1
-        # it_count += 1
         # Show Iteration Information
         try:
             best_cost_arr[it_count] = best_cost
@@ -141,7 +139,6 @@ def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, 
     out.e_factor = evaporation_factor
 
     return out
-    # return winner_gps
 
 
 def generate_aco_gp(attr_keys, d, p_matrix, e_factor):
@@ -179,6 +176,25 @@ def update_pheromones(attr_keys, pattern, p_matrix):
             p_matrix[i][j] += 1
             p_matrix[j][i] += 1
     return p_matrix
+
+
+def cost_func(d_set, pattern):
+    temp_bin = np.array([])
+    for gi in pattern.gradual_items:
+        arg = np.argwhere(np.isin(d_set.valid_bins[:, 0], gi.gradual_item))
+        if len(arg) > 0:
+            i = arg[0][0]
+            valid_bin = d_set.valid_bins[i]
+            if temp_bin.size <= 0:
+                temp_bin = valid_bin[1].copy()
+            else:
+                temp_bin = np.multiply(temp_bin, valid_bin[1])
+    bin_sum = np.sum(temp_bin)
+    if bin_sum > 0:
+        cost = (1 / bin_sum)
+    else:
+        cost = 1
+    return cost
 
 
 def validate_gp(d_set, pattern):
@@ -252,13 +268,13 @@ def init(f_path, min_supp, cores):
         list_gp = out.best_patterns
 
         # Results
-        # plt.plot(out.best_costs)
-        # plt.xlim(0, out.max_iteration)
-        # plt.xlabel('Iterations')
-        # plt.ylabel('Best Cost')
-        # plt.title('Ant Colony optimization (ACO)')
-        # plt.grid(True)
-        # plt.show()
+        plt.plot(out.best_costs)
+        plt.xlim(0, out.max_iteration)
+        plt.xlabel('Iterations')
+        plt.ylabel('Best Cost')
+        plt.title('Ant Colony optimization (ACO)')
+        plt.grid(True)
+        plt.show()
 
         wr_line = "Algorithm: ACO-GRAANK (v4.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'

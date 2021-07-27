@@ -2,7 +2,7 @@
 
 # Global Configurations
 MAX_ITERATIONS = 100
-N_VAR = 5
+N_VAR = 1  # DO NOT CHANGE
 
 # ACO-GRAD Configurations:
 EVAPORATION_FACTOR = 0.1

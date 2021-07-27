@@ -53,13 +53,13 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
 
     # Best particle (ever found)
     best_particle = empty_particle.deepcopy()
-    best_particle.fitness = float('inf')
+    best_particle.fitness = 1
 
     # Initialize Population
     particle_pop = empty_particle.repeat(n_particles)
     for i in range(n_particles):
         particle_pop[i].position = np.random.uniform(var_min, var_max, nvar)
-        particle_pop[i].fitness = float('inf')
+        particle_pop[i].fitness = 1
 
     pbest_pop = particle_pop.copy()
     gbest_particle = pbest_pop[0]
@@ -77,7 +77,7 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
             if particle_pop[i].position < var_min or particle_pop[i].position > var_max:
                 particle_pop[i].fitness = 1
             else:
-                particle_pop[i].fitness = fitness_function(particle_pop[i].position, attr_keys, d_set)
+                particle_pop[i].fitness = cost_func(particle_pop[i].position, attr_keys, d_set)
 
             if pbest_pop[i].fitness > particle_pop[i].fitness:
                 pbest_pop[i].fitness = particle_pop[i].fitness
@@ -105,8 +105,8 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
         else:
             if best_gp.support >= min_supp:
                 best_patterns.append(best_gp)
-            else:
-                best_particle.fitness = 1
+            # else:
+            #    best_particle.fitness = 1
 
         try:
             # Show Iteration Information
@@ -139,8 +139,19 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     return out
 
 
-def fitness_function(position, attr_keys, d_set):
-    bin_sum = compute_bin_sum(d_set, decode_gp(attr_keys, position))
+def cost_func(position, attr_keys, d_set):
+    pattern = decode_gp(attr_keys, position)
+    temp_bin = np.array([])
+    for gi in pattern.gradual_items:
+        arg = np.argwhere(np.isin(d_set.valid_bins[:, 0], gi.gradual_item))
+        if len(arg) > 0:
+            i = arg[0][0]
+            valid_bin = d_set.valid_bins[i]
+            if temp_bin.size <= 0:
+                temp_bin = valid_bin[1].copy()
+            else:
+                temp_bin = np.multiply(temp_bin, valid_bin[1])
+    bin_sum = np.sum(temp_bin)
     if bin_sum > 0:
         cost = (1 / bin_sum)
     else:
@@ -192,20 +203,6 @@ def validate_gp(d_set, pattern):
         return pattern
     else:
         return gen_pattern
-
-
-def compute_bin_sum(d_set, pattern):
-    temp_bin = np.array([])
-    for gi in pattern.gradual_items:
-        arg = np.argwhere(np.isin(d_set.valid_bins[:, 0], gi.gradual_item))
-        if len(arg) > 0:
-            i = arg[0][0]
-            valid_bin = d_set.valid_bins[i]
-            if temp_bin.size <= 0:
-                temp_bin = valid_bin[1].copy()
-            else:
-                temp_bin = np.multiply(temp_bin, valid_bin[1])
-    return np.sum(temp_bin)
 
 
 def check_anti_monotony(lst_p, pattern, subset=True):
