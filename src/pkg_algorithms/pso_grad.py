@@ -30,7 +30,7 @@ from .shared import config as cfg
 
 
 def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_particles=cfg.N_PARTICLES,
-                       velocity=cfg.VELOCITY, coeff_p=cfg.PERSONAL_COEFF, coeff_g=cfg.GLOBAL_COEFF):
+                       velocity=cfg.VELOCITY, coef_p=cfg.PERSONAL_COEFF, coef_g=cfg.GLOBAL_COEFF):
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -93,8 +93,8 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
 
         for i in range(n_particles):
             new_velocity = (velocity * velocity_vector[i]) + \
-                           (coeff_p * random.random()) * (pbest_pop[i].position - particle_pop[i].position) + \
-                           (coeff_g * random.random()) * (gbest_particle.position - particle_pop[i].position)
+                           (coef_p * random.random()) * (pbest_pop[i].position - particle_pop[i].position) + \
+                           (coef_g * random.random()) * (gbest_particle.position - particle_pop[i].position)
             particle_pop[i].position = particle_pop[i].position + new_velocity
 
         best_gp = validate_gp(d_set, decode_gp(attr_keys, best_particle.position))
@@ -129,8 +129,8 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     out.max_iteration = max_iteration
     out.n_particles = n_particles
     out.W = velocity
-    out.c1 = coeff_p
-    out.c2 = coeff_g
+    out.c1 = coef_p
+    out.c2 = coef_g
 
     out.titles = d_set.titles
     out.col_count = d_set.col_count
