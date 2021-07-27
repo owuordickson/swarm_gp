@@ -56,7 +56,7 @@ def run_hill_climbing(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, step_s
     # Best Cost of Iteration
     best_costs = np.empty(max_iteration)
     best_patterns = []
-    str_plt = ''
+    str_iter = ''
     repeated = 0
 
     # generate an initial point
@@ -91,7 +91,7 @@ def run_hill_climbing(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, step_s
             # Show Iteration Information
             # Store Best Cost
             best_costs[it_count] = best_sol.cost
-            str_plt += "Iteration {}: Best Cost: {} \n".format(it_count, best_costs[it_count])
+            str_iter += "{}: {} \n".format(it_count, best_sol.cost)
         except IndexError:
             pass
         it_count += 1
@@ -101,7 +101,7 @@ def run_hill_climbing(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, step_s
     out.best_sol = best_sol
     out.best_costs = best_costs
     out.best_patterns = best_patterns
-    out.str_iterations = str_plt
+    out.str_iterations = str_iter
     out.iteration_count = it_count
     out.max_iteration = max_iteration
     out.titles = d_set.titles
@@ -255,6 +255,7 @@ def init(f_path, min_supp, cores):
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
         wr_line += '\n\nIterations \n'
+        wr_line += "Iteration: Best Cost" + '\n'
         wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:

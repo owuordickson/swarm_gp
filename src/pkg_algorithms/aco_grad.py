@@ -81,7 +81,7 @@ def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, 
     # Best Cost of Iteration
     best_cost_arr = np.empty(max_it)
     best_cost = 1
-    str_plt = ''
+    str_iter = ''
 
     # 4. Iterations for ACO
     # while repeated < 1:
@@ -121,7 +121,7 @@ def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, 
         try:
             best_cost_arr[it_count] = best_cost
             # print("Iteration {}: Best Cost: {}".format(it_count, best_cost_arr[it_count]))
-            str_plt += "Iteration {}: Best Cost: {} \n".format(it_count, best_cost_arr[it_count])
+            str_iter += "{}: {} \n".format(it_count, best_cost)
         except IndexError:
             pass
         it_count += 1
@@ -130,7 +130,7 @@ def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, 
     out = structure()
     out.best_costs = best_cost_arr
     out.best_patterns = winner_gps
-    out.str_iterations = str_plt
+    out.str_iterations = str_iter
     out.iteration_count = it_count
     out.max_iteration = max_it
     out.titles = d_set.titles
@@ -302,6 +302,7 @@ def init(f_path, min_supp, cores):
         # wr_line += str(ac.p_matrix)
         # ac.plot_pheromone_matrix()
         wr_line += '\n\nIterations \n'
+        wr_line += "Iteration: Best Cost" + '\n'
         wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:

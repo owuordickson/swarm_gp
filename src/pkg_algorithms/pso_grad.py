@@ -67,7 +67,7 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     velocity_vector = np.zeros(n_particles)
     best_fitness_arr = np.empty(max_iteration)
     best_patterns = []
-    str_plt = ''
+    str_iter = ''
 
     repeated = 0
     while it_count < max_iteration:
@@ -111,7 +111,7 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
         try:
             # Show Iteration Information
             best_fitness_arr[it_count] = best_particle.fitness
-            str_plt += "Iteration {}: Best Fitness Value: {} \n".format(it_count, best_fitness_arr[it_count])
+            str_iter += "{}: {} \n".format(it_count, best_particle.fitness)
         except IndexError:
             pass
         it_count += 1
@@ -124,7 +124,7 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     out.best_patterns = best_patterns
 
     out.best_patterns = best_patterns
-    out.str_iterations = str_plt
+    out.str_iterations = str_iter
     out.iteration_count = it_count
     out.max_iteration = max_iteration
     out.n_particles = n_particles
@@ -276,6 +276,7 @@ def init(f_path, min_supp, cores):
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
         wr_line += '\n\nIterations \n'
+        wr_line += "Iteration: Best Cost" + '\n'
         wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:
