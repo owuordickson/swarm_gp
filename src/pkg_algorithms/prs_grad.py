@@ -21,7 +21,6 @@ CHANGES:
 import random
 import numpy as np
 from ypstruct import structure
-import matplotlib.pyplot as plt
 
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
@@ -214,13 +213,7 @@ def init(f_path, min_supp, cores):
         list_gp = out.best_patterns
 
         # Results
-        plt.plot(out.best_costs)
-        plt.xlim(0, out.max_it)
-        plt.xlabel('Iterations')
-        plt.ylabel('Best Cost')
-        plt.title('Pure Random Search Algorithm (PRS)')
-        plt.grid(True)
-        plt.show()
+        Profile.plot_curve(out, 'Pure Random Search Algorithm (PRS)')
 
         wr_line = "Algorithm: PRS-GRAANK (v1.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'

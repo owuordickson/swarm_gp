@@ -21,7 +21,6 @@ CHANGES:
 import numpy as np
 import random
 from ypstruct import structure
-import matplotlib.pyplot as plt
 
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
@@ -119,10 +118,8 @@ def run_particle_swarm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_par
     # Output
     out = structure()
     out.pop = particle_pop
-    out.best_pos = best_fitness_arr
+    out.best_costs = best_fitness_arr
     out.gbest_position = gbest_particle.position
-    out.best_patterns = best_patterns
-
     out.best_patterns = best_patterns
     out.str_iterations = str_iter
     out.iteration_count = it_count
@@ -243,13 +240,7 @@ def init(f_path, min_supp, cores):
         list_gp = out.best_patterns
 
         # Results
-        plt.plot(out.best_pos)
-        plt.xlim(0, out.max_it)
-        plt.xlabel('Iterations')
-        plt.ylabel('Global Best Position')
-        plt.title('Pattern Swarm Algorithm (PSO)')
-        plt.grid(True)
-        plt.show()
+        Profile.plot_curve(out, 'Pattern Swarm Algorithm (PSO)')
 
         wr_line = "Algorithm: PSO-GRAANK (v2.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'

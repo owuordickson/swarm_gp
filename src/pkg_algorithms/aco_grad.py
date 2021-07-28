@@ -17,7 +17,6 @@ Modification:
 """
 import numpy as np
 from ypstruct import structure
-import matplotlib.pyplot as plt
 
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
@@ -268,13 +267,7 @@ def init(f_path, min_supp, cores):
         list_gp = out.best_patterns
 
         # Results
-        plt.plot(out.best_costs)
-        plt.xlim(0, out.max_iteration)
-        plt.xlabel('Iterations')
-        plt.ylabel('Best Cost')
-        plt.title('Ant Colony optimization (ACO)')
-        plt.grid(True)
-        plt.show()
+        Profile.plot_curve(out, 'Ant Colony optimization (ACO)')
 
         wr_line = "Algorithm: ACO-GRAANK (v4.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'

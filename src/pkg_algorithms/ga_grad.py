@@ -19,7 +19,6 @@ CHANGES:
 """
 import numpy as np
 from ypstruct import structure
-import matplotlib.pyplot as plt
 
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
@@ -279,13 +278,7 @@ def init(f_path, min_supp, cores):
         list_gp = out.best_patterns
 
         # Results
-        plt.plot(out.best_costs)
-        plt.xlim(0, out.max_it)
-        plt.xlabel('Iterations')
-        plt.ylabel('Best Cost')
-        plt.title('Genetic Algorithm (GA)')
-        plt.grid(True)
-        plt.show()
+        Profile.plot_curve(out, 'Genetic Algorithm (GA)')
 
         wr_line = "Algorithm: GA-GRAANK (v2.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'

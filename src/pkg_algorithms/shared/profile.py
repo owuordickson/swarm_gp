@@ -12,6 +12,7 @@
 
 import os
 import multiprocessing as mp
+import matplotlib.pyplot as plt
 
 
 class Profile:
@@ -95,10 +96,25 @@ class Profile:
         return wr_line
 
     @staticmethod
-    def write_file(data, path, wr=False):
+    def write_file(data, path, wr=True):
         if wr:
             with open(path, 'w') as f:
                 f.write(data)
                 f.close()
+        else:
+            pass
+
+    @staticmethod
+    def plot_curve(out, title, pl=False):
+        if pl:
+            # Results
+            plt.plot(out.best_costs)
+            # DO NOT ADD *** plt.semilogy(out.best_costs)
+            plt.xlim(0, out.max_iteration)
+            plt.xlabel('Iterations')
+            plt.ylabel('Best Cost')
+            plt.title(title)
+            plt.grid(True)
+            plt.show()
         else:
             pass
