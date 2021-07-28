@@ -267,7 +267,7 @@ def is_duplicate(pattern, lst_winners):
     return False
 
 
-def init(f_path, min_supp, cores):
+def execute(f_path, min_supp, cores):
     try:
         if cores > 1:
             num_cores = cores

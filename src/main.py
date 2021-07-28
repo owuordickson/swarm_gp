@@ -18,7 +18,7 @@ Description:
 import sys
 from optparse import OptionParser
 import config as cfg
-from pkg_algorithms import aco_grad_v2, ga_grad, pso_grad
+from pkg_algorithms import aco_grad, ga_grad, pso_grad, prs_grad, pls_grad
 from pkg_algorithms import graank_v2
 
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         # ACO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = aco_grad_v2.init(filePath, minSup, numCores)
+        res_text = aco_grad.execute(filePath, minSup, numCores)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         # GA-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = ga_grad.init(filePath, minSup, numCores)
+        res_text = ga_grad.execute(filePath, minSup, numCores)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = pso_grad.init(filePath, minSup, numCores)
+        res_text = pso_grad.execute(filePath, minSup, numCores)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -107,11 +107,39 @@ if __name__ == "__main__":
         f_name = str('res_pso' + str(end).replace('.', '', 1) + '.txt')
         Profile.write_file(wr_text, f_name)
         print(wr_text)
+    elif algChoice == 'prs':
+        # PSO-GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = prs_grad.execute(filePath, minSup, numCores)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
+
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_prs' + str(end).replace('.', '', 1) + '.txt')
+        Profile.write_file(wr_text, f_name)
+        print(wr_text)
+    elif algChoice == 'pls':
+        # PSO-GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = pls_grad.execute(filePath, minSup, numCores)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
+
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
+        Profile.write_file(wr_text, f_name)
+        print(wr_text)
     elif algChoice == 'graank':
         # GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = graank_v2.init(filePath, minSup, numCores)
+        res_text = graank_v2.execute(filePath, minSup, numCores)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 

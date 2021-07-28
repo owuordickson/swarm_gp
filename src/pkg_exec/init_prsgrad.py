@@ -2,15 +2,15 @@
 import config as cfg
 import time
 import tracemalloc
-from src.pkg_algorithms.prs_grad import init
+from src.pkg_algorithms.prs_grad import execute
 from src.pkg_algorithms.shared.profile import Profile
 
-# res = pkg_init(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
+# res = pkg_exec(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
 # print(res)
 
 start = time.time()
 tracemalloc.start()
-res_text = init(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
+res_text = execute(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
 snapshot = tracemalloc.take_snapshot()
 end = time.time()
 

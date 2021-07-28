@@ -110,7 +110,7 @@ def graank(f_path=None, min_sup=None, eq=False, d_set=None):
     return d_set, patterns
 
 
-def init(f_path, min_supp, cores, eq=False):
+def execute(f_path, min_supp, cores, eq=False):
     try:
         d_set, list_gp = graank(f_path, min_supp, eq)
 
