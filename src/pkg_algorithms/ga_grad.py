@@ -23,10 +23,9 @@ from ypstruct import structure
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
-from .shared import config as cfg
 
 
-def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_pop=cfg.N_POPULATION, pc=cfg.PC):
+def run_genetic_algorithm(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma, nvar):
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -43,12 +42,8 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS, n_
     it_count = 0
     var_min = 0
     var_max = int(''.join(['1'] * len(attr_keys)), 2)
-    nvar = cfg.N_VAR
 
     nc = int(np.round(pc * n_pop / 2) * 2)  # Number of children. np.round is used to get even number of children
-    gamma = cfg.GAMMA
-    mu = cfg.MU
-    sigma = cfg.SIGMA
 
     # Empty Individual Template
     empty_individual = structure()
@@ -267,14 +262,14 @@ def is_duplicate(pattern, lst_winners):
     return False
 
 
-def execute(f_path, min_supp, cores):
+def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma, nvar):
     try:
         if cores > 1:
             num_cores = cores
         else:
             num_cores = Profile.get_num_cores()
 
-        out = run_genetic_algorithm(f_path, min_supp)
+        out = run_genetic_algorithm(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma, nvar)
         list_gp = out.best_patterns
 
         # Results

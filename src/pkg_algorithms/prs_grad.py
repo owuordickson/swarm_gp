@@ -25,10 +25,9 @@ from ypstruct import structure
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
-from .shared import config as cfg
 
 
-def run_pure_random_search(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS):
+def run_pure_random_search(f_path, min_supp, max_iteration, nvar):
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -41,7 +40,6 @@ def run_pure_random_search(f_path, min_supp, max_iteration=cfg.MAX_ITERATIONS):
     it_count = 0
     var_min = 0
     var_max = int(''.join(['1'] * len(attr_keys)), 2)
-    nvar = cfg.N_VAR
 
     # Empty Individual Template
     candidate = structure()
@@ -202,14 +200,14 @@ def is_duplicate(pattern, lst_winners):
     return False
 
 
-def execute(f_path, min_supp, cores):
+def execute(f_path, min_supp, cores, max_iteration, nvar):
     try:
         if cores > 1:
             num_cores = cores
         else:
             num_cores = Profile.get_num_cores()
 
-        out = run_pure_random_search(f_path, min_supp)
+        out = run_pure_random_search(f_path, min_supp, max_iteration, nvar)
         list_gp = out.best_patterns
 
         # Results

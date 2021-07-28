@@ -17,7 +17,7 @@ Description:
 
 import sys
 from optparse import OptionParser
-import config as cfg
+from pkg_exec import config as cfg
 from pkg_algorithms import aco_grad, ga_grad, pso_grad, prs_grad, pls_grad
 from pkg_algorithms import graank_v2
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         # ACO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = aco_grad.execute(filePath, minSup, numCores)
+        res_text = aco_grad.execute(filePath, minSup, numCores, cfg.EVAPORATION_FACTOR, cfg.MAX_ITERATIONS)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -83,7 +83,8 @@ if __name__ == "__main__":
         # GA-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = ga_grad.execute(filePath, minSup, numCores)
+        res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION, cfg.PC, cfg.GAMMA,
+                                   cfg.MU, cfg.SIGMA, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -97,7 +98,8 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = pso_grad.execute(filePath, minSup, numCores)
+        res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES, cfg.VELOCITY,
+                                    cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -111,7 +113,7 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = prs_grad.execute(filePath, minSup, numCores)
+        res_text = prs_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -125,7 +127,7 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = pls_grad.execute(filePath, minSup, numCores)
+        res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.STEP_SIZE, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 

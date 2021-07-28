@@ -2,7 +2,7 @@
 import config as cfg
 import time
 import tracemalloc
-from src.pkg_algorithms.pso_grad import execute
+from src.pkg_algorithms.pls_grad import execute
 from src.pkg_algorithms.shared.profile import Profile
 
 # res = pkg_exec(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
@@ -10,13 +10,13 @@ from src.pkg_algorithms.shared.profile import Profile
 
 start = time.time()
 tracemalloc.start()
-res_text = execute(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES)
+res_text = execute(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES, cfg.MAX_ITERATIONS, cfg.STEP_SIZE, cfg.N_VAR)
 snapshot = tracemalloc.take_snapshot()
 end = time.time()
 
 wr_text = ("Run-time: " + str(end - start) + " seconds\n")
 wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
 wr_text += str(res_text)
-f_name = str('res_pso' + str(end).replace('.', '', 1) + '.txt')
+f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
 Profile.write_file(wr_text, f_name)
 print(wr_text)

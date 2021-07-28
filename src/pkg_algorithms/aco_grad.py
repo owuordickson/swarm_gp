@@ -21,7 +21,6 @@ from ypstruct import structure
 from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
-from .shared import config as cfg
 
 
 def generate_d(valid_bins):
@@ -46,7 +45,7 @@ def generate_d(valid_bins):
     return d, attr_keys
 
 
-def run_ant_colony(f_path, min_supp, evaporation_factor=cfg.EVAPORATION_FACTOR, max_iteration=cfg.MAX_ITERATIONS):
+def run_ant_colony(f_path, min_supp, evaporation_factor, max_iteration):
     # 0. Initialize and prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -256,14 +255,14 @@ def is_duplicate(pattern, lst_winners, lst_losers):
     return False
 
 
-def execute(f_path, min_supp, cores):
+def execute(f_path, min_supp, cores,  evaporation_factor, max_iteration):
     try:
         if cores > 1:
             num_cores = cores
         else:
             num_cores = Profile.get_num_cores()
 
-        out = run_ant_colony(f_path, min_supp)
+        out = run_ant_colony(f_path, min_supp, evaporation_factor, max_iteration)
         list_gp = out.best_patterns
 
         # Results
