@@ -24,10 +24,14 @@ from pkg_algorithms import graank_v2
 
 if __name__ == "__main__":
     if not sys.argv:
-        algChoice = sys.argv[1]
-        filePath = sys.argv[2]
-        minSup = sys.argv[3]
-        numCores = sys.argv[4]
+        algChoice = sys.argv[0]
+        filePath = sys.argv[1]
+        minSup = sys.argv[2]
+        numCores = sys.argv[3]
+        eVal = sys.argv[4]
+        pcVal = sys.argv[5]
+        vFactor = sys.argv[6]
+        stepVal = sys.argv[7]
     else:
         optparser = OptionParser()
         optparser.add_option('-a', '--algorithmChoice',
@@ -50,6 +54,26 @@ if __name__ == "__main__":
                              help='number of cores',
                              default=cfg.CPU_CORES,
                              type='int')
+        optparser.add_option('-e', '--eFactor',
+                             dest='eVal',
+                             help='evaporation factor (ACO)',
+                             default=cfg.EVAPORATION_FACTOR,
+                             type='float')
+        optparser.add_option('-p', '--propOffsprings',
+                             dest='pcVal',
+                             help='proportion of children/offsprings (GA)',
+                             default=cfg.PC,
+                             type='float')
+        optparser.add_option('-v', '--velocityFactor',
+                             dest='vFactor',
+                             help='velocity factor (PSO)',
+                             default=cfg.VELOCITY,
+                             type='float')
+        optparser.add_option('-t', '--stepSize',
+                             dest='stepVal',
+                             help='step size (PLS)',
+                             default=cfg.STEP_SIZE,
+                             type='float')
         (options, args) = optparser.parse_args()
 
         if options.file is None:
@@ -60,6 +84,10 @@ if __name__ == "__main__":
         algChoice = options.algChoice
         minSup = options.minSup
         numCores = options.numCores
+        eVal = options.eVal
+        pcVal = options.pcVal
+        vFactor = options.vFactor
+        stepVal = options.stepVal
 
     import time
     import tracemalloc
@@ -69,7 +97,7 @@ if __name__ == "__main__":
         # ACO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = aco_grad.execute(filePath, minSup, numCores, cfg.EVAPORATION_FACTOR, cfg.MAX_ITERATIONS)
+        res_text = aco_grad.execute(filePath, minSup, numCores, eVal, cfg.MAX_ITERATIONS)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -83,7 +111,7 @@ if __name__ == "__main__":
         # GA-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION, cfg.PC, cfg.GAMMA,
+        res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION, pcVal, cfg.GAMMA,
                                    cfg.MU, cfg.SIGMA, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
@@ -98,7 +126,7 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES, cfg.VELOCITY,
+        res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES, vFactor,
                                     cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
@@ -127,7 +155,7 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.STEP_SIZE, cfg.N_VAR)
+        res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, stepVal, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 

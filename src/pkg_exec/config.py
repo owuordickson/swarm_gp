@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 # Configurations for Gradual Patterns:
+ALGORITHM = 'pso'
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
+
 # DATASET = "../../data/DATASET.csv"
-DATASET = "../../data/hcv_data.csv"
-ALGORITHM = 'prs'
+# DATASET = "../../data/hcv_data.csv"
 
 # Uncomment for Main:
 DATASET = "../data/hcv_data.csv"
@@ -13,7 +14,7 @@ DATASET = "../data/hcv_data.csv"
 # Uncomment for Terminal:
 # DATASET = "data/DATASET.csv"
 
-# Global Configurations
+# Global Swarm Configurations
 MAX_ITERATIONS = 100
 N_VAR = 1  # DO NOT CHANGE
 
@@ -28,7 +29,7 @@ MU = 0.1  # Mutation
 SIGMA = 0.5  # Mutation
 
 # PSO-GRAD Configurations:
-VELOCITY = 0.5
+VELOCITY = 0.1
 PERSONAL_COEFF = 0.1
 GLOBAL_COEFF = 0.9
 TARGET = 1
