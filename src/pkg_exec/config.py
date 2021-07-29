@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Configurations for Gradual Patterns:
-ALGORITHM = 'prs'
+ALGORITHM = 'pls'
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
 
@@ -37,4 +37,4 @@ TARGET_ERROR = 1e-6
 N_PARTICLES = 5
 
 # PLS-GRAD Configurations
-STEP_SIZE = 0.1
+STEP_SIZE = 0.5

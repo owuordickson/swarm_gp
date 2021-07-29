@@ -101,6 +101,7 @@ def run_hill_climbing(f_path, min_supp, max_iteration, step_size, nvar):
     out.str_iterations = str_iter
     out.iteration_count = it_count
     out.max_iteration = max_iteration
+    out.step_size = step_size
     out.titles = d_set.titles
     out.col_count = d_set.col_count
     out.row_count = d_set.row_count
@@ -224,8 +225,7 @@ def execute(f_path, min_supp, cores, max_iteration, step_size, nvar):
         wr_line = "Algorithm: PLS-GRAANK (v1.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
         wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
-        # wr_line += "Population size: " + str(out.n_pop) + '\n'
-        # wr_line += "PC: " + str(out.pc) + '\n'
+        wr_line += "Step size: " + str(out.step_size) + '\n'
 
         wr_line += "Minimum support: " + str(min_supp) + '\n'
         wr_line += "Number of cores: " + str(num_cores) + '\n'
