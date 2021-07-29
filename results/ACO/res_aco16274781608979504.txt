@@ -57,7 +57,6 @@ Pattern : Support
 ['3-', '6-'] : 0.625
 
 
-Iterations 
 Iteration: Best Cost
 0: 0.0002090738030524775 
 1: 0.0002090738030524775 

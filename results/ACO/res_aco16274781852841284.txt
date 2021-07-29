@@ -53,7 +53,6 @@ Pattern : Support
 ['2+', '8+'] : 0.51
 
 
-Iterations 
 Iteration: Best Cost
 0: 0.006024096385542169 
 1: 0.005988023952095809 

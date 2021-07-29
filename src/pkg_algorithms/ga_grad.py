@@ -298,8 +298,7 @@ def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma,
         for gp in list_gp:
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        wr_line += '\n\nIterations \n'
-        wr_line += "Iteration: Best Cost" + '\n'
+        wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
         wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:

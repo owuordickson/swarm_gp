@@ -293,8 +293,7 @@ def execute(f_path, min_supp, cores,  evaporation_factor, max_iteration):
         # wr_line += "\nPheromone Matrix\n"
         # wr_line += str(ac.p_matrix)
         # ac.plot_pheromone_matrix()
-        wr_line += '\n\nIterations \n'
-        wr_line += "Iteration: Best Cost" + '\n'
+        wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
         wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:

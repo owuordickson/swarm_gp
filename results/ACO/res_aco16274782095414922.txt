@@ -51,7 +51,6 @@ Pattern : Support
 ['9+', '4+'] : 0.666
 
 
-Iterations 
 Iteration: Best Cost
 0: 0.002564102564102564 
 1: 0.002564102564102564 
