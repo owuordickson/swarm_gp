@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Configurations for Gradual Patterns:
-ALGORITHM = 'pls'
+ALGORITHM = 'ga'
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
 
@@ -23,7 +23,7 @@ EVAPORATION_FACTOR = 0.5
 
 # GA-GRAD Configurations:
 N_POPULATION = 5
-PC = 0.1
+PC = 0.5
 GAMMA = 0.1  # Cross-over
 MU = 0.1  # Mutation
 SIGMA = 0.5  # Mutation
