@@ -10,7 +10,7 @@ from src.pkg_algorithms.shared.profile import Profile
 
 start = time.time()
 tracemalloc.start()
-res_text = execute(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES, cfg.MAX_ITERATIONS, cfg.N_VAR)
+res_text = execute(cfg.DATASET, cfg.MIN_SUPPORT, cfg.CPU_CORES, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, cfg.N_VAR)
 snapshot = tracemalloc.take_snapshot()
 end = time.time()
 

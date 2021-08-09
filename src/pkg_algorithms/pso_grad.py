@@ -27,7 +27,11 @@ from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
 
-def run_particle_swarm(f_path, min_supp, max_iteration, n_particles, velocity, coef_p, coef_g, nvar):
+eval_count = 0
+str_eval = ''
+
+
+def run_particle_swarm(f_path, min_supp, max_iteration, max_evaluations, n_particles, velocity, coef_p, coef_g, nvar):
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -66,7 +70,8 @@ def run_particle_swarm(f_path, min_supp, max_iteration, n_particles, velocity, c
     str_iter = ''
 
     repeated = 0
-    while it_count < max_iteration:
+    while eval_count < max_evaluations:
+        # while it_count < max_iteration:
         # while repeated < 1:
         for i in range(n_particles):
             # UPDATED
@@ -121,6 +126,8 @@ def run_particle_swarm(f_path, min_supp, max_iteration, n_particles, velocity, c
     out.str_iterations = str_iter
     out.iteration_count = it_count
     out.max_iteration = max_iteration
+    out.str_evaluations = str_eval
+    out.cost_evaluations = eval_count
     out.n_particles = n_particles
     out.W = velocity
     out.c1 = coef_p
@@ -150,6 +157,12 @@ def cost_func(position, attr_keys, d_set):
         cost = (1 / bin_sum)
     else:
         cost = 1
+
+    global str_eval
+    global eval_count
+    eval_count += 1
+    str_eval += "{}: {} \n".format(eval_count, cost)
+
     return cost
 
 
@@ -226,14 +239,15 @@ def is_duplicate(pattern, lst_winners):
     return False
 
 
-def execute(f_path, min_supp, cores, max_iteration, n_particles, velocity, coef_p, coef_g, nvar):
+def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_particles, velocity, coef_p, coef_g, nvar):
     try:
         if cores > 1:
             num_cores = cores
         else:
             num_cores = Profile.get_num_cores()
 
-        out = run_particle_swarm(f_path, min_supp, max_iteration, n_particles, velocity, coef_p, coef_g, nvar)
+        out = run_particle_swarm(f_path, min_supp, max_iteration, max_evaluations, n_particles, velocity, coef_p,
+                                 coef_g, nvar)
         list_gp = out.best_patterns
 
         # Results
@@ -249,7 +263,8 @@ def execute(f_path, min_supp, cores, max_iteration, n_particles, velocity, coef_
         wr_line += "Minimum support: " + str(min_supp) + '\n'
         wr_line += "Number of cores: " + str(num_cores) + '\n'
         wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
-        wr_line += "Number of iterations: " + str(out.iteration_count) + '\n\n'
+        wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
+        wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n\n'
 
         for txt in out.titles:
             try:
@@ -263,8 +278,10 @@ def execute(f_path, min_supp, cores, max_iteration, n_particles, velocity, coef_
         for gp in list_gp:
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
-        wr_line += out.str_iterations
+        # wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
+        # wr_line += out.str_iterations
+        wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+        wr_line += out.str_evaluations
         return wr_line
     except ArithmeticError as error:
         wr_line = "Failed: " + str(error)

@@ -111,8 +111,8 @@ if __name__ == "__main__":
         # GA-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION, pcVal, cfg.GAMMA,
-                                   cfg.MU, cfg.SIGMA, cfg.N_VAR)
+        res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
+                                   cfg.N_POPULATION, pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -126,8 +126,8 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES, vFactor,
-                                    cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, cfg.N_VAR)
+        res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
+                                    cfg.N_PARTICLES, vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = prs_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_VAR)
+        res_text = prs_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 
@@ -155,7 +155,7 @@ if __name__ == "__main__":
         # PSO-GRAANK
         start = time.time()
         tracemalloc.start()
-        res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, stepVal, cfg.N_VAR)
+        res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, stepVal, cfg.N_VAR)
         snapshot = tracemalloc.take_snapshot()
         end = time.time()
 

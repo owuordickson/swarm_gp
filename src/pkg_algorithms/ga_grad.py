@@ -24,8 +24,11 @@ from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
+eval_count = 0
+str_eval = ''
 
-def run_genetic_algorithm(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma, nvar):
+
+def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, nvar):
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -68,7 +71,8 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu,
     str_iter = ''
 
     repeated = 0
-    while it_count < max_iteration:
+    while eval_count < max_evaluations:
+        # while it_count < max_iteration:
         # while repeated < 1:
 
         c_pop = []  # Children population
@@ -135,8 +139,10 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu,
     out.best_costs = best_costs
     out.best_patterns = best_patterns
     out.str_iterations = str_iter
+    out.str_evaluations = str_eval
     out.iteration_count = it_count
     out.max_iteration = max_iteration
+    out.cost_evaluations = eval_count
     out.n_pop = n_pop
     out.pc = pc
     out.titles = d_set.titles
@@ -163,6 +169,12 @@ def cost_func(position, attr_keys, d_set):
         cost = (1 / bin_sum)
     else:
         cost = 1
+
+    global str_eval
+    global eval_count
+    eval_count += 1
+    str_eval += "{}: {} \n".format(eval_count, cost)
+
     return cost
 
 
@@ -262,14 +274,14 @@ def is_duplicate(pattern, lst_winners):
     return False
 
 
-def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma, nvar):
+def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, nvar):
     try:
         if cores > 1:
             num_cores = cores
         else:
             num_cores = Profile.get_num_cores()
 
-        out = run_genetic_algorithm(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma, nvar)
+        out = run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, nvar)
         list_gp = out.best_patterns
 
         # Results
@@ -284,7 +296,8 @@ def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma,
         wr_line += "Minimum support: " + str(min_supp) + '\n'
         wr_line += "Number of cores: " + str(num_cores) + '\n'
         wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
-        wr_line += "Number of iterations: " + str(out.iteration_count) + '\n\n'
+        wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
+        wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n\n'
 
         for txt in out.titles:
             try:
@@ -298,8 +311,10 @@ def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma,
         for gp in list_gp:
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
-        wr_line += out.str_iterations
+        # wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
+        # wr_line += out.str_iterations
+        wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+        wr_line += out.str_evaluations
         return wr_line
     except ArithmeticError as error:
         wr_line = "Failed: " + str(error)
