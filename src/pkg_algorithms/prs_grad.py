@@ -26,9 +26,6 @@ from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
-eval_count = 0
-str_eval = ''
-
 
 def run_pure_random_search(f_path, min_supp, max_iteration, max_evaluations, nvar):
     # Prepare data set
@@ -43,6 +40,7 @@ def run_pure_random_search(f_path, min_supp, max_iteration, max_evaluations, nva
     it_count = 0
     var_min = 0
     var_max = int(''.join(['1'] * len(attr_keys)), 2)
+    eval_count = 0
 
     # Empty Individual Template
     candidate = structure()
@@ -58,6 +56,7 @@ def run_pure_random_search(f_path, min_supp, max_iteration, max_evaluations, nva
     best_costs = np.empty(max_iteration)
     best_patterns = []
     str_iter = ''
+    str_eval = ''
 
     repeated = 0
     while eval_count < max_evaluations:
@@ -66,9 +65,11 @@ def run_pure_random_search(f_path, min_supp, max_iteration, max_evaluations, nva
         candidate.position = ((var_min + random.random()) * (var_max - var_min))
         apply_bound(candidate, var_min, var_max)
         candidate.cost = cost_func(candidate.position, attr_keys, d_set)
+        eval_count += 1
 
         if candidate.cost < best_sol.cost:
             best_sol = candidate.deepcopy()
+        str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
         best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
         is_present = is_duplicate(best_gp, best_patterns)
@@ -124,11 +125,6 @@ def cost_func(position, attr_keys, d_set):
         cost = (1 / bin_sum)
     else:
         cost = 1
-
-    global str_eval
-    global eval_count
-    eval_count += 1
-    str_eval += "{}: {} \n".format(eval_count, cost)
 
     return cost
 

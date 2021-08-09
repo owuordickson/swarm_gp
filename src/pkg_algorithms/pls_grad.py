@@ -25,9 +25,6 @@ from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
-eval_count = 0
-str_eval = ''
-
 
 # hill climbing local search algorithm
 def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_size, nvar):
@@ -43,6 +40,7 @@ def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_siz
     it_count = 0
     var_min = 0
     var_max = int(''.join(['1'] * len(attr_keys)), 2)
+    eval_count = 0
 
     # Empty Individual Template
     best_sol = structure()
@@ -57,6 +55,7 @@ def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_siz
     best_costs = np.empty(max_iteration)
     best_patterns = []
     str_iter = ''
+    str_eval = ''
     repeated = 0
 
     # generate an initial point
@@ -66,6 +65,7 @@ def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_siz
         best_sol.position = np.random.uniform(var_min, var_max, nvar)
     # evaluate the initial point
     best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
+
     # run the hill climb
     while eval_count < max_evaluations:
         # while it_count < max_iteration:
@@ -74,8 +74,11 @@ def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_siz
         while candidate.position is None or not apply_bound(candidate, var_min, var_max):
             candidate.position = best_sol.position + (random.randrange(var_min, var_max) * step_size)
         candidate.cost = cost_func(candidate.position, attr_keys, d_set)
+        eval_count += 1
+
         if candidate.cost < best_sol.cost:
             best_sol = candidate.deepcopy()
+        str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
         best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
         is_present = is_duplicate(best_gp, best_patterns)
@@ -85,8 +88,6 @@ def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_siz
         else:
             if best_gp.support >= min_supp:
                 best_patterns.append(best_gp)
-            # else:
-            #    best_sol.cost = 1
 
         try:
             # Show Iteration Information
@@ -132,12 +133,6 @@ def cost_func(position, attr_keys, d_set):
         cost = (1 / bin_sum)
     else:
         cost = 1
-
-    global str_eval
-    global eval_count
-    eval_count += 1
-    str_eval += "{}: {} \n".format(eval_count, cost)
-
     return cost
 
 
