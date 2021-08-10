@@ -61,9 +61,9 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     pop = empty_individual.repeat(n_pop)
     for i in range(n_pop):
         pop[i].position = np.random.uniform(var_min, var_max, nvar)
-        pop[i].cost = cost_func(pop[i].position, attr_keys, d_set)
-        if pop[i].cost < best_sol.cost:
-            best_sol = pop[i].deepcopy()
+        pop[i].cost = 1  # cost_func(pop[i].position, attr_keys, d_set)
+        # if pop[i].cost < best_sol.cost:
+        #    best_sol = pop[i].deepcopy()
 
     # Best Cost of Iteration
     best_costs = np.empty(max_iteration)
@@ -97,15 +97,21 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
             c1.cost = cost_func(c1.position, attr_keys, d_set)
             if c1.cost < best_sol.cost:
                 best_sol = c1.deepcopy()
+            # Add Offsprings to c_pop
+            c_pop.append(c1)
+
+            if eval_count >= max_evaluations:
+                break
 
             # Evaluate Second Offspring
             c2.cost = cost_func(c2.position, attr_keys, d_set)
             if c2.cost < best_sol.cost:
                 best_sol = c2.deepcopy()
-
             # Add Offsprings to c_pop
-            c_pop.append(c1)
             c_pop.append(c2)
+
+            if eval_count >= max_evaluations:
+                break
 
         # Merge, Sort and Select
         pop += c_pop
