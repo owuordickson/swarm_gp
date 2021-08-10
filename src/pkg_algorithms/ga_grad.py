@@ -24,11 +24,15 @@ from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
+max_evals = 0
 eval_count = 0
 str_eval = ''
 
 
 def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, nvar):
+    global max_evals
+    max_evals = max_evaluations
+
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -53,10 +57,6 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     empty_individual.position = None
     empty_individual.cost = None
 
-    # Best Solution Ever Found
-    best_sol = empty_individual.deepcopy()
-    best_sol.cost = 1  # np.inf
-
     # Initialize Population
     pop = empty_individual.repeat(n_pop)
     for i in range(n_pop):
@@ -64,6 +64,13 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
         pop[i].cost = 1  # cost_func(pop[i].position, attr_keys, d_set)
         # if pop[i].cost < best_sol.cost:
         #    best_sol = pop[i].deepcopy()
+
+    # Best Solution Ever Found
+    best_sol = empty_individual.deepcopy()
+    best_sol.position = pop[0].position
+    best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
+    # global eval_count
+    # eval_count -= 1
 
     # Best Cost of Iteration
     best_costs = np.empty(max_iteration)
@@ -109,9 +116,6 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
                 best_sol = c2.deepcopy()
             # Add Offsprings to c_pop
             c_pop.append(c2)
-
-            if eval_count >= max_evaluations:
-                break
 
         # Merge, Sort and Select
         pop += c_pop
@@ -178,8 +182,9 @@ def cost_func(position, attr_keys, d_set):
 
     global str_eval
     global eval_count
-    eval_count += 1
-    str_eval += "{}: {} \n".format(eval_count, cost)
+    if eval_count < max_evals:
+        eval_count += 1
+        str_eval += "{}: {} \n".format(eval_count, cost)
 
     return cost
 

@@ -2,7 +2,7 @@
 
 # Configurations for Gradual Patterns:
 INITIALIZATIONS = 1
-ALGORITHM = 'ga'
+ALGORITHM = 'pso'
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
 
@@ -17,7 +17,7 @@ DATASET = "../data/hcv_data.csv"
 
 # Global Swarm Configurations
 MAX_ITERATIONS = 100
-MAX_EVALUATIONS = 1000
+MAX_EVALUATIONS = 100
 N_VAR = 1  # DO NOT CHANGE
 
 # ACO-GRAD Configurations:

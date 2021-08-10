@@ -27,11 +27,15 @@ from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
 
+max_evals = 0
 eval_count = 0
 str_eval = ''
 
 
 def run_particle_swarm(f_path, min_supp, max_iteration, max_evaluations, n_particles, velocity, coef_p, coef_g, nvar):
+    global max_evals
+    max_evals = max_evaluations
+
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -51,10 +55,6 @@ def run_particle_swarm(f_path, min_supp, max_iteration, max_evaluations, n_parti
     empty_particle.position = None
     empty_particle.fitness = None
 
-    # Best particle (ever found)
-    best_particle = empty_particle.deepcopy()
-    best_particle.fitness = 1
-
     # Initialize Population
     particle_pop = empty_particle.repeat(n_particles)
     for i in range(n_particles):
@@ -63,6 +63,11 @@ def run_particle_swarm(f_path, min_supp, max_iteration, max_evaluations, n_parti
 
     pbest_pop = particle_pop.copy()
     gbest_particle = pbest_pop[0]
+
+    # Best particle (ever found)
+    best_particle = empty_particle.deepcopy()
+    best_particle.position = gbest_particle.position
+    best_particle.fitness = cost_func(best_particle.position, attr_keys, d_set)
 
     velocity_vector = np.zeros(n_particles)
     best_fitness_arr = np.empty(max_iteration)
@@ -160,8 +165,9 @@ def cost_func(position, attr_keys, d_set):
 
     global str_eval
     global eval_count
-    eval_count += 1
-    str_eval += "{}: {} \n".format(eval_count, cost)
+    if eval_count < max_evals:
+        eval_count += 1
+        str_eval += "{}: {} \n".format(eval_count, cost)
 
     return cost
 
