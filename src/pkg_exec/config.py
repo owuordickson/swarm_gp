@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Configurations for Gradual Patterns:
-INITIALIZATIONS = 3
+INITIALIZATIONS = 1
 ALGORITHM = 'ga'
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
@@ -13,11 +13,11 @@ CPU_CORES = 4
 DATASET = "../data/hcv_data.csv"
 
 # Uncomment for Terminal:
-# DATASET = "data/DATASET.csv"
+# DATASET = "data/hcv_data.csv"
 
 # Global Swarm Configurations
 MAX_ITERATIONS = 100
-MAX_EVALUATIONS = 10
+MAX_EVALUATIONS = 1000
 N_VAR = 1  # DO NOT CHANGE
 
 # ACO-GRAD Configurations:

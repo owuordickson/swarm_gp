@@ -100,8 +100,8 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
             # Add Offsprings to c_pop
             c_pop.append(c1)
 
-            if eval_count >= max_evaluations:
-                break
+            # if eval_count >= max_evaluations:
+            #    break
 
             # Evaluate Second Offspring
             c2.cost = cost_func(c2.position, attr_keys, d_set)
