@@ -58,7 +58,7 @@ def run_particle_swarm(f_path, min_supp, max_iteration, max_evaluations, n_parti
     # Initialize Population
     particle_pop = empty_particle.repeat(n_particles)
     for i in range(n_particles):
-        particle_pop[i].position = np.random.uniform(var_min, var_max, nvar)
+        particle_pop[i].position = random.randrange(var_min, var_max)
         particle_pop[i].fitness = 1
 
     pbest_pop = particle_pop.copy()

@@ -60,7 +60,7 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     # Initialize Population
     pop = empty_individual.repeat(n_pop)
     for i in range(n_pop):
-        pop[i].position = np.random.uniform(var_min, var_max, nvar)
+        pop[i].position = np.random.randint(var_min, var_max)
         pop[i].cost = 1  # cost_func(pop[i].position, attr_keys, d_set)
         # if pop[i].cost < best_sol.cost:
         #    best_sol = pop[i].deepcopy()
@@ -69,8 +69,6 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     best_sol = empty_individual.deepcopy()
     best_sol.position = pop[0].position
     best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
-    # global eval_count
-    # eval_count -= 1
 
     # Best Cost of Iteration
     best_costs = np.empty(max_iteration)
@@ -192,7 +190,7 @@ def cost_func(position, attr_keys, d_set):
 def crossover(p1, p2, gamma=0.1):
     c1 = p1.deepcopy()
     c2 = p2.deepcopy()
-    alpha = np.random.uniform(-gamma, 1+gamma, *c1.position.shape)
+    alpha = np.random.uniform(-gamma, 1+gamma, 1)
     c1.position = alpha*p1.position + (1-alpha)*p2.position
     c2.position = alpha*p2.position + (1-alpha)*p1.position
     return c1, c2

@@ -21,7 +21,6 @@ from pkg_exec import config as cfg
 from pkg_algorithms import aco_grad, ga_grad, pso_grad, prs_grad, pls_grad
 from pkg_algorithms import graank_v2
 
-
 if __name__ == "__main__":
     if not sys.argv:
         algChoice = sys.argv[0]
@@ -93,93 +92,93 @@ if __name__ == "__main__":
     import tracemalloc
     from pkg_algorithms.shared.profile import Profile
 
-    for i in range(cfg.INITIALIZATIONS):
+    # for i in range(cfg.INITIALIZATIONS):
+    if algChoice == 'aco':
+        # ACO-GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = aco_grad.execute(filePath, minSup, numCores, eVal, cfg.MAX_ITERATIONS)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
 
-        if algChoice == 'aco':
-            # ACO-GRAANK
-            start = time.time()
-            tracemalloc.start()
-            res_text = aco_grad.execute(filePath, minSup, numCores, eVal, cfg.MAX_ITERATIONS)
-            snapshot = tracemalloc.take_snapshot()
-            end = time.time()
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_aco' + str(end).replace('.', '', 1) + '.txt')
+        Profile.write_file(wr_text, f_name)
+        print(wr_text)
+    elif algChoice == 'ga':
+        # GA-GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
+                                   cfg.N_POPULATION, pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, cfg.N_VAR)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
 
-            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-            wr_text += str(res_text)
-            f_name = str('res_aco' + str(end).replace('.', '', 1) + '.txt')
-            Profile.write_file(wr_text, f_name)
-            print(wr_text)
-        elif algChoice == 'ga':
-            # GA-GRAANK
-            start = time.time()
-            tracemalloc.start()
-            res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
-                                       cfg.N_POPULATION, pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, cfg.N_VAR)
-            snapshot = tracemalloc.take_snapshot()
-            end = time.time()
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_ga' + str(end).replace('.', '', 1) + '.txt')
+        Profile.write_file(wr_text, f_name)
+        print(wr_text)
+    elif algChoice == 'pso':
+        # PSO-GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
+                                    cfg.N_PARTICLES, vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, cfg.N_VAR)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
 
-            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-            wr_text += str(res_text)
-            f_name = str('res_ga' + str(end).replace('.', '', 1) + '.txt')
-            Profile.write_file(wr_text, f_name)
-            print(wr_text)
-        elif algChoice == 'pso':
-            # PSO-GRAANK
-            start = time.time()
-            tracemalloc.start()
-            res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
-                                        cfg.N_PARTICLES, vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, cfg.N_VAR)
-            snapshot = tracemalloc.take_snapshot()
-            end = time.time()
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_pso' + str(end).replace('.', '', 1) + '.txt')
+        Profile.write_file(wr_text, f_name)
+        print(wr_text)
+    elif algChoice == 'prs':
+        # PSO-GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = prs_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, cfg.N_VAR)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
 
-            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-            wr_text += str(res_text)
-            f_name = str('res_pso' + str(end).replace('.', '', 1) + '.txt')
-            Profile.write_file(wr_text, f_name)
-            print(wr_text)
-        elif algChoice == 'prs':
-            # PSO-GRAANK
-            start = time.time()
-            tracemalloc.start()
-            res_text = prs_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, cfg.N_VAR)
-            snapshot = tracemalloc.take_snapshot()
-            end = time.time()
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_prs' + str(end).replace('.', '', 1) + '.txt')
+        Profile.write_file(wr_text, f_name)
+        print(wr_text)
+    elif algChoice == 'pls':
+        # PSO-GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, stepVal,
+                                    cfg.N_VAR)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
 
-            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-            wr_text += str(res_text)
-            f_name = str('res_prs' + str(end).replace('.', '', 1) + '.txt')
-            Profile.write_file(wr_text, f_name)
-            print(wr_text)
-        elif algChoice == 'pls':
-            # PSO-GRAANK
-            start = time.time()
-            tracemalloc.start()
-            res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, stepVal, cfg.N_VAR)
-            snapshot = tracemalloc.take_snapshot()
-            end = time.time()
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
+        Profile.write_file(wr_text, f_name)
+        print(wr_text)
+    elif algChoice == 'graank':
+        # GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = graank_v2.execute(filePath, minSup, numCores)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
 
-            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-            wr_text += str(res_text)
-            f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
-            Profile.write_file(wr_text, f_name)
-            print(wr_text)
-        elif algChoice == 'graank':
-            # GRAANK
-            start = time.time()
-            tracemalloc.start()
-            res_text = graank_v2.execute(filePath, minSup, numCores)
-            snapshot = tracemalloc.take_snapshot()
-            end = time.time()
-
-            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-            wr_text += str(res_text)
-            f_name = str('res_graank' + str(end).replace('.', '', 1) + '.txt')
-            Profile.write_file(wr_text, f_name)
-            print(wr_text)
-        else:
-            print("Invalid Algorithm Choice!")
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_graank' + str(end).replace('.', '', 1) + '.txt')
+        Profile.write_file(wr_text, f_name)
+        print(wr_text)
+    else:
+        print("Invalid Algorithm Choice!")

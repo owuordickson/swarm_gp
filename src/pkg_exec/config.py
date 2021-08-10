@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # Configurations for Gradual Patterns:
-INITIALIZATIONS = 1
-ALGORITHM = 'pso'
+# INITIALIZATIONS = 3
+ALGORITHM = 'ga'
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
 
