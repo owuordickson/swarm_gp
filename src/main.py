@@ -166,19 +166,5 @@ if __name__ == "__main__":
         f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
         Profile.write_file(wr_text, f_name)
         print(wr_text)
-    elif algChoice == 'graank':
-        # GRAANK
-        start = time.time()
-        tracemalloc.start()
-        res_text = graank_v2.execute(filePath, minSup, numCores)
-        snapshot = tracemalloc.take_snapshot()
-        end = time.time()
-
-        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-        wr_text += str(res_text)
-        f_name = str('res_graank' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name)
-        print(wr_text)
     else:
         print("Invalid Algorithm Choice!")
