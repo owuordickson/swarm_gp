@@ -22,7 +22,7 @@ from ypstruct import structure
 from src.pkg_algorithms.shared.gp import GI, GP
 from src.pkg_algorithms.shared.dataset_bfs import Dataset
 from src.pkg_algorithms.shared.profile import Profile
-from src.pkg_exec import config as cfg
+from src import config as cfg
 
 
 def update_pheromones(attr_index, p_matrix, pattern):

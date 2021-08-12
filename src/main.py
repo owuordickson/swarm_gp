@@ -17,9 +17,8 @@ Description:
 
 import sys
 from optparse import OptionParser
-from pkg_exec import config as cfg
+import config as cfg
 from pkg_algorithms import aco_grad, ga_grad, pso_grad, prs_grad, pls_grad
-from pkg_algorithms import graank_v2
 
 if __name__ == "__main__":
     if not sys.argv:
