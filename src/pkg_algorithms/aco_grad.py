@@ -10,7 +10,7 @@
 
 Breath-First Search for gradual patterns (ACO-GRAANK)
 
-Modification:
+Changes:
 1. generates distance matrix (d_matrix)
 2. uses plain methods
 
