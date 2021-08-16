@@ -17,6 +17,9 @@ CHANGES:
 3. used decimal <-> binary conversion for best_position <-> best_gradual_pattern (item-set combination)
 
 """
+
+
+import random
 import numpy as np
 from ypstruct import structure
 
@@ -54,7 +57,7 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     # Initialize Population
     pop = empty_individual.repeat(n_pop)
     for i in range(n_pop):
-        pop[i].position = np.random.randint(var_min, var_max)
+        pop[i].position = random.randrange(var_min, var_max)
         pop[i].cost = 1  # cost_func(pop[i].position, attr_keys, d_set)
         # if pop[i].cost < best_sol.cost:
         #    best_sol = pop[i].deepcopy()
