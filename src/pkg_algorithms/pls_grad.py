@@ -61,23 +61,25 @@ def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_siz
     # generate an initial point
     best_sol.position = None
     # candidate.position = None
-    while best_sol.position is None or not apply_bound(best_sol, var_min, var_max):
+    if best_sol.position is None:
         best_sol.position = np.random.uniform(var_min, var_max, nvar)
     # evaluate the initial point
+    apply_bound(best_sol, var_min, var_max)
     best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
 
     # run the hill climb
-    while eval_count < max_evaluations:
-        # while it_count < max_iteration:
+    while it_count < max_iteration:
+        # while eval_count < max_evaluations:
         # take a step
         candidate.position = None
-        while candidate.position is None or not apply_bound(candidate, var_min, var_max):
+        if candidate.position is None:
             candidate.position = best_sol.position + (random.randrange(var_min, var_max) * step_size)
+        apply_bound(candidate, var_min, var_max)
         candidate.cost = cost_func(candidate.position, attr_keys, d_set)
-        eval_count += 1
 
         if candidate.cost < best_sol.cost:
             best_sol = candidate.deepcopy()
+        eval_count += 1
         str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
         best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
@@ -137,9 +139,8 @@ def cost_func(position, attr_keys, d_set):
 
 
 def apply_bound(x, var_min, var_max):
-    if x.position < var_min or x.position > var_max:
-        return False
-    return True
+    x.position = np.maximum(x.position, var_min)
+    x.position = np.minimum(x.position, var_max)
 
 
 def decode_gp(attr_keys, position):
@@ -252,10 +253,10 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, step_size, 
         for gp in list_gp:
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        # wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
-        # wr_line += out.str_iterations
-        wr_line += '\n\n' + "Evaluation: Cost" + '\n'
-        wr_line += out.str_evaluations
+        wr_line += '\n\n' + "Iteration: Cost" + '\n'
+        wr_line += out.str_iterations
+        # wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+        # wr_line += out.str_evaluations
         return wr_line
     except ArithmeticError as error:
         wr_line = "Failed: " + str(error)
