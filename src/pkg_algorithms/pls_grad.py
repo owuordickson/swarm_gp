@@ -114,7 +114,6 @@ def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_siz
     out.titles = d_set.titles
     out.col_count = d_set.col_count
     out.row_count = d_set.row_count
-
     return out
 
 
