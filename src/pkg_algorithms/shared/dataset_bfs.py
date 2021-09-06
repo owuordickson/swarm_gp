@@ -28,11 +28,13 @@ class Dataset:
     def __init__(self, data_src, min_sup=0.5, eq=False):
         self.thd_supp = min_sup
         self.equal = eq
-        if isinstance(data_src, pd.DataFrame):
+        if not isinstance(data_src, pd.DataFrame):
             print("Testing DF")
             self.titles, self.data = Dataset.read_df(data_src)
         else:
             self.titles, self.data = Dataset.read_csv(data_src)
+        print(self.titles)
+        print(self.data)
         self.row_count, self.col_count = self.data.shape
         self.time_cols = self.get_time_cols()
         self.attr_cols = self.get_attr_cols()
@@ -116,24 +118,34 @@ class Dataset:
             else:
                 print("Data fetched from CSV file")
                 # 2. Get table headers
+                keys = np.arange(len(raw_data[0]))
                 if raw_data[0][0].replace('.', '', 1).isdigit() or raw_data[0][0].isdigit():
-                    titles = np.array([])
+                    values = np.array(keys, dtype='S')
                 else:
                     if raw_data[0][1].replace('.', '', 1).isdigit() or raw_data[0][1].isdigit():
-                        titles = np.array([])
+                        values = np.array(keys, dtype='S')
                     else:
-                        keys = np.arange(len(raw_data[0]))
                         values = np.array(raw_data[0], dtype='S')
-                        titles = np.rec.fromarrays((keys, values), names=('key', 'value'))
                         raw_data = np.delete(raw_data, 0, 0)
+                titles = np.rec.fromarrays((keys, values), names=('key', 'value'))
                 return titles, np.asarray(raw_data)
         except Exception as error:
             print("Unable to read CSV file or DataFrame")
             raise Exception("DataFrame/CSV file read error. " + str(error))
 
     @staticmethod
-    def read_df(d_frame):
+    def read_df(d_fram):
+        d_frame = pd.read_csv(d_fram, sep='\s+')
         # 1. Check column names
+        # cols = d_frame.columns
+        try:
+            _ = d_frame.columns.astype(float)
+            # d_frame.columns = np.arange(d_frame.shape[1])
+            d_frame.loc[-1] = np.arange(d_frame.shape[1])  # adding a row
+            d_frame.index = d_frame.index + 1  # shifting index
+            d_frame.sort_index(inplace=True)
+        except ValueError:
+            pass
 
         # 2. Remove objects with Null values
         df = d_frame.dropna()
@@ -149,7 +161,11 @@ class Dataset:
         # keep only the columns in df that do not contain string
         df = df[[col for col in df.columns if col not in cols_to_remove]]
 
-        return None, None
+        # 4. Return titles and data
+        keys = np.arange(df.shape[1])
+        values = np.array(df.columns, dtype='S')
+        titles = np.rec.fromarrays((keys, values), names=('key', 'value'))
+        return titles, df.values
 
     @staticmethod
     def test_time(date_str):
