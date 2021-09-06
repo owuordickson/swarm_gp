@@ -27,9 +27,9 @@ from .shared.profile import Profile
 
 
 # hill climbing local search algorithm
-def run_hill_climbing(f_path, min_supp, max_iteration, max_evaluations, step_size, nvar):
+def run_hill_climbing(source, min_supp, max_iteration, max_evaluations, step_size, nvar):
     # Prepare data set
-    d_set = Dataset(f_path, min_supp)
+    d_set = Dataset(source, min_supp)
     d_set.init_gp_attributes()
     attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
 
