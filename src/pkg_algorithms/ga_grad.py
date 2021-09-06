@@ -6,7 +6,7 @@
 @version: "2.0"
 @email: "owuordickson@gmail.com"
 @created: "29 April 2021"
-@modified: "23 July 2021"
+@modified: "16 August 2021"
 
 Breath-First Search for gradual patterns using Genetic Algorithm (GA-GRAD).
 GA is used to learn gradual pattern candidates.
@@ -17,6 +17,9 @@ CHANGES:
 3. used decimal <-> binary conversion for best_position <-> best_gradual_pattern (item-set combination)
 
 """
+
+
+import random
 import numpy as np
 from ypstruct import structure
 
@@ -24,15 +27,8 @@ from .shared.gp import GI, GP
 from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
-max_evals = 0
-eval_count = 0
-str_eval = ''
-
 
 def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, nvar):
-    global max_evals
-    max_evals = max_evaluations
-
     # Prepare data set
     d_set = Dataset(f_path, min_supp)
     d_set.init_gp_attributes()
@@ -47,6 +43,7 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     # Parameters
     # pc: Proportion of children (if its 1, then nc == npop
     it_count = 0
+    eval_count = 0
     var_min = 0
     var_max = int(''.join(['1'] * len(attr_keys)), 2)
 
@@ -60,7 +57,7 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     # Initialize Population
     pop = empty_individual.repeat(n_pop)
     for i in range(n_pop):
-        pop[i].position = np.random.randint(var_min, var_max)
+        pop[i].position = random.randrange(var_min, var_max)
         pop[i].cost = 1  # cost_func(pop[i].position, attr_keys, d_set)
         # if pop[i].cost < best_sol.cost:
         #    best_sol = pop[i].deepcopy()
@@ -74,10 +71,11 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     best_costs = np.empty(max_iteration)
     best_patterns = []
     str_iter = ''
+    str_eval = ''
 
     repeated = 0
-    while eval_count < max_evaluations:
-        # while it_count < max_iteration:
+    while it_count < max_iteration:
+        # while eval_count < max_evaluations:
         # while repeated < 1:
 
         c_pop = []  # Children population
@@ -87,10 +85,28 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
             p1 = pop[q[0]]
             p2 = pop[q[1]]
 
-            # Perform Crossover
+            # a. Perform Crossover
             c1, c2 = crossover(p1, p2, gamma)
 
-            # Perform Mutation
+            # Apply Bound
+            apply_bound(c1, var_min, var_max)
+            apply_bound(c2, var_min, var_max)
+
+            # Evaluate First Offspring
+            c1.cost = cost_func(c1.position, attr_keys, d_set)
+            if c1.cost < best_sol.cost:
+                best_sol = c1.deepcopy()
+            eval_count += 1
+            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+
+            # Evaluate Second Offspring
+            c2.cost = cost_func(c2.position, attr_keys, d_set)
+            if c2.cost < best_sol.cost:
+                best_sol = c2.deepcopy()
+            eval_count += 1
+            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+
+            # b. Perform Mutation
             c1 = mutate(c1, mu, sigma)
             c2 = mutate(c2, mu, sigma)
 
@@ -102,17 +118,18 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
             c1.cost = cost_func(c1.position, attr_keys, d_set)
             if c1.cost < best_sol.cost:
                 best_sol = c1.deepcopy()
-            # Add Offsprings to c_pop
-            c_pop.append(c1)
-
-            # if eval_count >= max_evaluations:
-            #    break
+            eval_count += 1
+            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
             # Evaluate Second Offspring
             c2.cost = cost_func(c2.position, attr_keys, d_set)
             if c2.cost < best_sol.cost:
                 best_sol = c2.deepcopy()
-            # Add Offsprings to c_pop
+            eval_count += 1
+            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+
+            # c. Add Offsprings to c_pop
+            c_pop.append(c1)
             c_pop.append(c2)
 
         # Merge, Sort and Select
@@ -156,7 +173,6 @@ def run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_po
     out.titles = d_set.titles
     out.col_count = d_set.col_count
     out.row_count = d_set.row_count
-
     return out
 
 
@@ -177,20 +193,13 @@ def cost_func(position, attr_keys, d_set):
         cost = (1 / bin_sum)
     else:
         cost = 1
-
-    global str_eval
-    global eval_count
-    if eval_count < max_evals:
-        eval_count += 1
-        str_eval += "{}: {} \n".format(eval_count, cost)
-
     return cost
 
 
 def crossover(p1, p2, gamma=0.1):
     c1 = p1.deepcopy()
     c2 = p2.deepcopy()
-    alpha = np.random.uniform(-gamma, 1+gamma, 1)
+    alpha = np.random.uniform(0, gamma, 1)
     c1.position = alpha*p1.position + (1-alpha)*p2.position
     c2.position = alpha*p2.position + (1-alpha)*p1.position
     return c1, c2
@@ -198,9 +207,22 @@ def crossover(p1, p2, gamma=0.1):
 
 def mutate(x, mu, sigma):
     y = x.deepcopy()
-    flag = np.random.rand(*x.position.shape) <= mu
+    str_x = str(int(y.position))
+    # flag = np.random.rand(*x.position.shape) <= mu
+    # ind = np.argwhere(flag)
+    # y.position[ind] += sigma*np.random.rand(*ind.shape)
+    flag = np.random.rand(*(len(str_x),)) <= mu
     ind = np.argwhere(flag)
-    y.position[ind] += sigma*np.random.rand(*ind.shape)
+    str_y = "0"
+    for i in ind:
+        val = float(str_x[i[0]])
+        val += sigma*np.random.uniform(0, 1, 1)
+        if i[0] == 0:
+            str_y = "".join(("", "{}".format(int(val)), str_x[1:]))
+        else:
+            str_y = "".join((str_x[:i[0] - 1], "{}".format(int(val)), str_x[i[0]:]))
+        str_x = str_y
+    y.position = int(str_y)
     return y
 
 
@@ -320,10 +342,10 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_pop, pc, 
         for gp in list_gp:
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        # wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
-        # wr_line += out.str_iterations
-        wr_line += '\n\n' + "Evaluation: Cost" + '\n'
-        wr_line += out.str_evaluations
+        wr_line += '\n\n' + "Iteration: Cost" + '\n'
+        wr_line += out.str_iterations
+        # wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+        # wr_line += out.str_evaluations
         return wr_line
     except ArithmeticError as error:
         wr_line = "Failed: " + str(error)
