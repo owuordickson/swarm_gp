@@ -122,32 +122,32 @@ class Dataset:
                     if raw_data[0][1].replace('.', '', 1).isdigit() or raw_data[0][1].isdigit():
                         titles = np.array([])
                     else:
-                        # titles = self.convert_data_to_array(data, has_title=True)
                         keys = np.arange(len(raw_data[0]))
                         values = np.array(raw_data[0], dtype='S')
                         titles = np.rec.fromarrays((keys, values), names=('key', 'value'))
                         raw_data = np.delete(raw_data, 0, 0)
                 return titles, np.asarray(raw_data)
-                # return Dataset.get_tbl_headers(temp)
         except Exception as error:
             print("Unable to read CSV file or DataFrame")
             raise Exception("DataFrame/CSV file read error. " + str(error))
 
     @staticmethod
     def read_df(d_frame):
-        # 1. Remove objects with Null values
-        df_1 = d_frame.dropna()
+        # 1. Check column names
 
-        # 2. Remove columns with Strings
+        # 2. Remove objects with Null values
+        df = d_frame.dropna()
+
+        # 3. Remove columns with Strings
         cols_to_remove = []
-        for col in df_1.columns:
+        for col in df.columns:
             try:
-                _ = df_1[col].astype(float)
+                _ = df[col].astype(float)
             except ValueError:
                 cols_to_remove.append(col)
                 pass
         # keep only the columns in df that do not contain string
-        df_2 = df_1[[col for col in df_1.columns if col not in cols_to_remove]]
+        df = df[[col for col in df.columns if col not in cols_to_remove]]
 
         return None, None
 
