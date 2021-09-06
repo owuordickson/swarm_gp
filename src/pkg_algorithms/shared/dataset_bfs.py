@@ -130,8 +130,8 @@ class Dataset:
                 return titles, np.asarray(raw_data)
                 # return Dataset.get_tbl_headers(temp)
         except Exception as error:
-            print("Unable to read CSV file")
-            raise Exception("CSV file read error. " + str(error))
+            print("Unable to read CSV file or DataFrame")
+            raise Exception("DataFrame/CSV file read error. " + str(error))
 
     @staticmethod
     def read_df(d_frame):
