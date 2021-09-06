@@ -18,15 +18,20 @@ import csv
 from dateutil.parser import parse
 import time
 import numpy as np
+import pandas as pd
 import gc
 
 
 class Dataset:
 
-    def __init__(self, file_path, min_sup=0.5, eq=False):
+    def __init__(self, data_src, min_sup=0.5, eq=False):
         self.thd_supp = min_sup
         self.equal = eq
-        self.titles, self.data = Dataset.read_csv(file_path)
+        if isinstance(data_src, pd.DataFrame):
+            print("Testing DF")
+            self.titles, self.data = Dataset.read_df(data_src)
+        else:
+            self.titles, self.data = Dataset.read_csv(data_src)
         self.row_count, self.col_count = self.data.shape
         self.time_cols = self.get_time_cols()
         self.attr_cols = self.get_attr_cols()
@@ -126,6 +131,10 @@ class Dataset:
         except Exception as error:
             print("Unable to read CSV file")
             raise Exception("CSV file read error. " + str(error))
+
+    @staticmethod
+    def read_df(d_frame):
+        return None, None
 
     @staticmethod
     def test_time(date_str):
