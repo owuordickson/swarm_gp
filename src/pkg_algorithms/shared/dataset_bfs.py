@@ -135,7 +135,20 @@ class Dataset:
 
     @staticmethod
     def read_df(d_frame):
-        # Removes objects with Null values
+        # 1. Remove objects with Null values
+        df_1 = d_frame.dropna()
+
+        # 2. Remove columns with Strings
+        cols_to_remove = []
+        for col in df_1.columns:
+            try:
+                _ = df_1[col].astype(float)
+            except ValueError:
+                cols_to_remove.append(col)
+                pass
+        # keep only the columns in df that do not contain string
+        df_2 = df_1[[col for col in df_1.columns if col not in cols_to_remove]]
+
         return None, None
 
     @staticmethod
