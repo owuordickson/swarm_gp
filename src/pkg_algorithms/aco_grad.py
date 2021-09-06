@@ -45,9 +45,9 @@ def generate_d(valid_bins):
     return d, attr_keys
 
 
-def run_ant_colony(source, min_supp, evaporation_factor, max_iteration):
+def run_ant_colony(data_src, min_supp, evaporation_factor, max_iteration):
     # 0. Initialize and prepare data set
-    d_set = Dataset(source, min_supp)
+    d_set = Dataset(data_src, min_supp)
     d_set.init_gp_attributes()
     d, attr_keys = generate_d(d_set.valid_bins)  # distance matrix (d) & attributes corresponding to d
 

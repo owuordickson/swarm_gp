@@ -27,9 +27,9 @@ from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
 
-def run_particle_swarm(source, min_supp, max_iteration, max_evaluations, n_particles, velocity, coef_p, coef_g, nvar):
+def run_particle_swarm(data_src, min_supp, max_iteration, max_evaluations, n_particles, velocity, coef_p, coef_g, nvar):
     # Prepare data set
-    d_set = Dataset(source, min_supp)
+    d_set = Dataset(data_src, min_supp)
     d_set.init_gp_attributes()
     # self.target = 1
     # self.target_error = 1e-6
