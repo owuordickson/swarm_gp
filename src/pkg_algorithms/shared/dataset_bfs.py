@@ -3,15 +3,16 @@
 @author: "Dickson Owuor"
 @credits: "Anne Laurent"
 @license: "MIT"
-@version: "4.0"
+@version: "5.0"
 @email: "owuordickson@gmail.com"
 @created: "12 July 2019"
-@modified: "17 Feb 2021"
+@modified: "06 Sep 2021"
 
 Changes
 -------
 1. Fetch all binaries during initialization
 2. Replaced loops for fetching binary rank with numpy function
+3. Accepts Pandas DataFrame
 
 """
 import csv
@@ -134,6 +135,7 @@ class Dataset:
 
     @staticmethod
     def read_df(d_frame):
+        # Removes objects with Null values
         return None, None
 
     @staticmethod

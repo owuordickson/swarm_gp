@@ -6,11 +6,9 @@ ALGORITHM = 'ga'
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
 
-# DATASET = "../../data/DATASET.csv"
-# DATASET = "../../data/hcv_data.csv"
-
 # Uncomment for Main:
 DATASET = "../data/hcv_data.csv"
+# DATASET = "../data/c2k.csv"
 
 # Uncomment for Terminal:
 # DATASET = "data/hcv_data.csv"
