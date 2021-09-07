@@ -2,12 +2,12 @@
 
 # Configurations for Gradual Patterns:
 # INITIALIZATIONS = 3
-ALGORITHM = 'ga'
+ALGORITHM = 'pls'  # aco, ga, pso, prs, pls
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
 
 # Uncomment for Main:
-DATASET = "../data/hcv_data.csv"
+DATASET = "../data/DATASET.csv"
 # DATASET = "../data/c2k.csv"
 
 # Uncomment for Terminal:
@@ -38,3 +38,8 @@ N_PARTICLES = 5
 
 # PLS-GRAD Configurations
 STEP_SIZE = 0.5
+
+# VISUALIZATIONS
+SHOW_P_MATRIX = True  # ONLY FOR: aco
+SHOW_EVALUATIONS = False  # FOR aco, prs, pls, pso
+SHOW_ITERATIONS = True  # FOR aco, prs, pls, pso

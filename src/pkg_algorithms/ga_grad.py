@@ -6,7 +6,7 @@
 @version: "2.0"
 @email: "owuordickson@gmail.com"
 @created: "29 April 2021"
-@modified: "16 August 2021"
+@modified: "07 September 2021"
 
 Breath-First Search for gradual patterns using Genetic Algorithm (GA-GRAD).
 GA is used to learn gradual pattern candidates.
@@ -14,7 +14,7 @@ GA is used to learn gradual pattern candidates.
 CHANGES:
 1. uses normal functions
 2. updated cost function to use Binary Array of GPs
-3. used decimal <-> binary conversion for best_position <-> best_gradual_pattern (item-set combination)
+3. uses rank order search space
 
 """
 
@@ -28,7 +28,7 @@ from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
 
-def run_genetic_algorithm(data_src, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, nvar):
+def run_genetic_algorithm(data_src, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma):
     # Prepare data set
     d_set = Dataset(data_src, min_supp)
     d_set.init_gp_attributes()
@@ -305,14 +305,14 @@ def is_duplicate(pattern, lst_winners):
     return False
 
 
-def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, nvar):
+def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, visuals):
     try:
         if cores > 1:
             num_cores = cores
         else:
             num_cores = Profile.get_num_cores()
 
-        out = run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, nvar)
+        out = run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma)
         list_gp = out.best_patterns
 
         # Results
@@ -342,10 +342,12 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_pop, pc, 
         for gp in list_gp:
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        wr_line += '\n\n' + "Iteration: Cost" + '\n'
-        wr_line += out.str_iterations
-        # wr_line += '\n\n' + "Evaluation: Cost" + '\n'
-        # wr_line += out.str_evaluations
+        if visuals[1]:
+            wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+            wr_line += out.str_evaluations
+        if visuals[2]:
+            wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
+            wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:
         wr_line = "Failed: " + str(error)

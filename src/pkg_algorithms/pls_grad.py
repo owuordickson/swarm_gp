@@ -3,9 +3,11 @@
 @author: "Dickson Owuor"
 @credits: "Thomas Runkler, and Anne Laurent,"
 @license: "MIT"
-@version: "1.0"
+@version: "2.0"
 @email: "owuordickson@gmail.com"
 @created: "26 July 2021"
+@modified: "07 September 2021"
+
 
 Breath-First Search for gradual patterns using Pure Local Search (PLS-GRAD).
 PLS is used to learn gradual pattern candidates.
@@ -13,7 +15,7 @@ PLS is used to learn gradual pattern candidates.
 Adopted from: https://machinelearningmastery.com/iterated-local-search-from-scratch-in-python/
 
 CHANGES:
-1.
+1. Used rank order search space
 
 """
 
@@ -216,7 +218,7 @@ def is_duplicate(pattern, lst_winners):
     return False
 
 
-def execute(f_path, min_supp, cores, max_iteration, max_evaluations, step_size, nvar):
+def execute(f_path, min_supp, cores, max_iteration, max_evaluations, step_size, nvar, visuals):
     try:
         if cores > 1:
             num_cores = cores
@@ -229,7 +231,7 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, step_size, 
         # Results
         Profile.plot_curve(out, 'Pure Local Search Algorithm (PLS)')
 
-        wr_line = "Algorithm: PLS-GRAANK (v1.0)\n"
+        wr_line = "Algorithm: PLS-GRAANK (v2.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
         wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
         wr_line += "Step size: " + str(out.step_size) + '\n'
@@ -252,10 +254,12 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, step_size, 
         for gp in list_gp:
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        wr_line += '\n\n' + "Iteration: Cost" + '\n'
-        wr_line += out.str_iterations
-        # wr_line += '\n\n' + "Evaluation: Cost" + '\n'
-        # wr_line += out.str_evaluations
+        if visuals[1]:
+            wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+            wr_line += out.str_evaluations
+        if visuals[2]:
+            wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
+            wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:
         wr_line = "Failed: " + str(error)

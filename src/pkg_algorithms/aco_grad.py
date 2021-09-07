@@ -135,6 +135,7 @@ def run_ant_colony(data_src, min_supp, evaporation_factor, max_iteration):
     out.col_count = d_set.col_count
     out.row_count = d_set.row_count
     out.e_factor = evaporation_factor
+    out.p_matrix = pheromones
 
     return out
 
@@ -255,7 +256,7 @@ def is_duplicate(pattern, lst_winners, lst_losers):
     return False
 
 
-def execute(f_path, min_supp, cores,  evaporation_factor, max_iteration):
+def execute(f_path, min_supp, cores,  evaporation_factor, max_iteration, visuals):
     try:
         if cores > 1:
             num_cores = cores
@@ -290,11 +291,16 @@ def execute(f_path, min_supp, cores,  evaporation_factor, max_iteration):
         for gp in list_gp:
             wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        # wr_line += "\nPheromone Matrix\n"
-        # wr_line += str(ac.p_matrix)
-        # ac.plot_pheromone_matrix()
-        wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
-        wr_line += out.str_iterations
+        if visuals[0]:
+            wr_line += "\nPheromone Matrix\n"
+            wr_line += str(out.p_matrix)
+            # ac.plot_pheromone_matrix()
+        if visuals[1]:
+            wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+            wr_line += out.str_evaluations
+        if visuals[2]:
+            wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
+            wr_line += out.str_iterations
         return wr_line
     except ArithmeticError as error:
         wr_line = "Failed: " + str(error)
