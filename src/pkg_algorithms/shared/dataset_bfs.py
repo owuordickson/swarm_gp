@@ -28,7 +28,7 @@ class Dataset:
     def __init__(self, data_src, min_sup=0.5, eq=False):
         self.thd_supp = min_sup
         self.equal = eq
-        if not isinstance(data_src, pd.DataFrame):
+        if isinstance(data_src, pd.DataFrame):
             print("Testing DF")
             self.titles, self.data = Dataset.read_df(data_src)
         else:

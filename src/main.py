@@ -81,13 +81,13 @@ if __name__ == "__main__":
         vFactor = options.vFactor
         stepVal = options.stepVal
 
-        VISUAL = [0, 0, 0]
-        if cfg.SHOW_P_MATRIX:
-            VISUAL[0] = True
-        if cfg.SHOW_EVALUATIONS:
-            VISUAL[1] = True
-        if cfg.SHOW_ITERATIONS:
-            VISUAL[2] = True
+    VISUAL = [0, 0, 0]
+    if cfg.SHOW_P_MATRIX:
+        VISUAL[0] = True
+    if cfg.SHOW_EVALUATIONS:
+        VISUAL[1] = True
+    if cfg.SHOW_ITERATIONS:
+        VISUAL[2] = True
 
     import time
     import tracemalloc
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
         wr_text += str(res_text)
         f_name = str('res_aco' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name)
+        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
         print(wr_text)
     elif algChoice == 'ga':
         # GA-GRAANK
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
         wr_text += str(res_text)
         f_name = str('res_ga' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name)
+        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
         print(wr_text)
     elif algChoice == 'pso':
         # PSO-GRAANK
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
         wr_text += str(res_text)
         f_name = str('res_pso' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name)
+        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
         print(wr_text)
     elif algChoice == 'prs':
         # PSO-GRAANK
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
         wr_text += str(res_text)
         f_name = str('res_prs' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name)
+        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
         print(wr_text)
     elif algChoice == 'pls':
         # PSO-GRAANK
@@ -165,7 +165,7 @@ if __name__ == "__main__":
         wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
         wr_text += str(res_text)
         f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name)
+        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
         print(wr_text)
     else:
         print("Invalid Algorithm Choice!")
