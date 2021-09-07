@@ -8,6 +8,7 @@ CPU_CORES = 4
 
 # Uncomment for Main:
 DATASET = "../data/DATASET.csv"
+DATASET = "../data/hcv_data.csv"
 # DATASET = "../data/c2k.csv"
 
 # Uncomment for Terminal:

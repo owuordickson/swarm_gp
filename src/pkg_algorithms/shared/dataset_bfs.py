@@ -12,7 +12,8 @@ Changes
 -------
 1. Fetch all binaries during initialization
 2. Replaced loops for fetching binary rank with numpy function
-3. Accepts Pandas DataFrame
+3. Accepts CSV file as data source OR
+4. Accepts Pandas DataFrame as data source
 
 """
 import csv
@@ -29,12 +30,9 @@ class Dataset:
         self.thd_supp = min_sup
         self.equal = eq
         if isinstance(data_src, pd.DataFrame):
-            print("Testing DF")
             self.titles, self.data = Dataset.read_df(data_src)
         else:
             self.titles, self.data = Dataset.read_csv(data_src)
-        print(self.titles)
-        print(self.data)
         self.row_count, self.col_count = self.data.shape
         self.time_cols = self.get_time_cols()
         self.attr_cols = self.get_attr_cols()
@@ -120,10 +118,12 @@ class Dataset:
                 # 2. Get table headers
                 keys = np.arange(len(raw_data[0]))
                 if raw_data[0][0].replace('.', '', 1).isdigit() or raw_data[0][0].isdigit():
-                    values = np.array(keys, dtype='S')
+                    vals = ['col_'+str(k) for k in keys]
+                    values = np.array(vals, dtype='S')
                 else:
                     if raw_data[0][1].replace('.', '', 1).isdigit() or raw_data[0][1].isdigit():
-                        values = np.array(keys, dtype='S')
+                        vals = ['col_' + str(k) for k in keys]
+                        values = np.array(vals, dtype='S')
                     else:
                         values = np.array(raw_data[0], dtype='S')
                         raw_data = np.delete(raw_data, 0, 0)
@@ -134,17 +134,24 @@ class Dataset:
             raise Exception("DataFrame/CSV file read error. " + str(error))
 
     @staticmethod
-    def read_df(d_fram):
-        d_frame = pd.read_csv(d_fram, sep='\s+')
+    def read_df(d_frame):
+        # d_frame = pd.read_csv(d_fram,sep=';')  # TO BE REMOVED
         # 1. Check column names
-        # cols = d_frame.columns
         try:
+            # Check data type
             _ = d_frame.columns.astype(float)
-            # d_frame.columns = np.arange(d_frame.shape[1])
-            d_frame.loc[-1] = np.arange(d_frame.shape[1])  # adding a row
+
+            # Add column values
+            d_frame.loc[-1] = d_frame.columns.to_numpy(dtype=float)  # adding a row
             d_frame.index = d_frame.index + 1  # shifting index
             d_frame.sort_index(inplace=True)
+
+            # Rename column names
+            vals = ['col_' + str(k) for k in np.arange(d_frame.shape[1])]
+            d_frame.columns = vals
         except ValueError:
+            pass
+        except TypeError:
             pass
 
         # 2. Remove objects with Null values
@@ -156,6 +163,9 @@ class Dataset:
             try:
                 _ = df[col].astype(float)
             except ValueError:
+                cols_to_remove.append(col)
+                pass
+            except TypeError:
                 cols_to_remove.append(col)
                 pass
         # keep only the columns in df that do not contain string
