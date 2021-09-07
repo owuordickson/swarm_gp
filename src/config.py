@@ -7,8 +7,10 @@ MIN_SUPPORT = 0.5
 CPU_CORES = 4
 
 # Uncomment for Main:
-DATASET = "../data/DATASET.csv"
+# DATASET = "../data/DATASET.csv"
 # DATASET = "../data/hcv_data.csv"
+DATASET = "../data/hungary_chickenpox.csv"
+# DATASET = "../data/AirQualityUCI.csv"
 # DATASET = "../data/c2k.csv"
 
 # Uncomment for Terminal:
