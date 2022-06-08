@@ -27,7 +27,10 @@ from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
 
-def run_particle_swarm(data_src, min_supp, max_iteration, max_evaluations, n_particles, velocity, coef_p, coef_g):
+def run_particle_swarm(data_src, min_supp, max_iteration, n_particles, velocity, coef_p, coef_g):
+    max_iteration = int(max_iteration)
+    n_particles = int(n_particles)
+
     # Prepare data set
     d_set = Dataset(data_src, min_supp)
     d_set.init_gp_attributes()
@@ -117,6 +120,10 @@ def run_particle_swarm(data_src, min_supp, max_iteration, max_evaluations, n_par
         except IndexError:
             pass
         it_count += 1
+
+    # Parameter Tuning - Output
+    if data_src == 0.0:
+        return 1/best_particle.fitness
 
     # Output
     out = structure()

@@ -25,9 +25,14 @@ import pandas as pd
 import gc
 
 
+CONF_SOURCE = '../data/hungary_chickenpox.csv'
+
+
 class Dataset:
 
     def __init__(self, data_source, min_sup=0.5, eq=False):
+        if data_source == 0.0:  # Parameter Tuning
+            data_source = CONF_SOURCE
         self.thd_supp = min_sup
         self.equal = eq
         self.titles, self.data = Dataset.read(data_source)
@@ -99,10 +104,15 @@ class Dataset:
 
     @staticmethod
     def read(data_src):
+        """
+        Reads all the contents of a file (in CSV format) or a data-frame. Checks if its columns have numeric values. It
+        separates its columns headers (titles) from the objects.
+        :param data_src:
+        :return: title, column objects
+        """
         # 1. Retrieve data set from source
         if isinstance(data_src, pd.DataFrame):
             # a. DataFrame source
-            # d_frame = pd.read_csv(d_fram,sep=';')  # TO BE REMOVED
             # Check column names
             try:
                 # Check data type
@@ -136,7 +146,7 @@ class Dataset:
                 if len(raw_data) <= 1:
                     raise Exception("CSV file read error. File has little or no data")
                 else:
-                    print("Data fetched from CSV file")
+                    # print("Data fetched from CSV file")
                     # 2. Get table headers
                     keys = np.arange(len(raw_data[0]))
                     if raw_data[0][0].replace('.', '', 1).isdigit() or raw_data[0][0].isdigit():
@@ -185,7 +195,13 @@ class Dataset:
             try:
                 _ = df[col].astype(float)
             except ValueError:
-                cols_to_remove.append(col)
+                # Keep time columns
+                try:
+                    ok, stamp = Dataset.test_time(str(df[col][0]))
+                    if not ok:
+                        cols_to_remove.append(col)
+                except ValueError:
+                    cols_to_remove.append(col)
                 pass
             except TypeError:
                 cols_to_remove.append(col)
@@ -200,5 +216,5 @@ class Dataset:
         keys = np.arange(df.shape[1])
         values = np.array(df.columns, dtype='S')
         titles = np.rec.fromarrays((keys, values), names=('key', 'value'))
-        print("Data cleaned")
+        # print("Data cleaned")
         return titles, df.values

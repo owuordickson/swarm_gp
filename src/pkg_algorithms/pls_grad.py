@@ -29,7 +29,10 @@ from .shared.profile import Profile
 
 
 # hill climbing local search algorithm
-def run_hill_climbing(data_src, min_supp, max_iteration, max_evaluations, step_size, nvar):
+def run_hill_climbing(data_src, min_supp, max_iteration, step_size, nvar):
+    max_iteration = int(max_iteration)
+    nvar = int(nvar)
+
     # Prepare data set
     d_set = Dataset(data_src, min_supp)
     d_set.init_gp_attributes()
@@ -102,7 +105,11 @@ def run_hill_climbing(data_src, min_supp, max_iteration, max_evaluations, step_s
             pass
         it_count += 1
 
-        # Output
+    # Parameter Tuning - Output
+    if data_src == 0.0:
+        return 1/best_sol.cost
+
+    # Output
     out = structure()
     out.best_sol = best_sol
     out.best_costs = best_costs

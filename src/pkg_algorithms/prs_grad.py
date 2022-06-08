@@ -29,7 +29,10 @@ from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
 
-def run_pure_random_search(data_src, min_supp, max_iteration, max_evaluations, nvar):
+def run_pure_random_search(data_src, min_supp, max_iteration, nvar):
+    max_iteration = int(max_iteration)
+    nvar = int(nvar)
+
     # Prepare data set
     d_set = Dataset(data_src, min_supp)
     d_set.init_gp_attributes()
@@ -92,6 +95,10 @@ def run_pure_random_search(data_src, min_supp, max_iteration, max_evaluations, n
         except IndexError:
             pass
         it_count += 1
+
+    # Parameter Tuning - Output
+    if data_src == 0.0:
+        return 1/best_sol.cost
 
     # Output
     out = structure()

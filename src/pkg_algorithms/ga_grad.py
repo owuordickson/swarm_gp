@@ -28,7 +28,10 @@ from .shared.dataset_bfs import Dataset
 from .shared.profile import Profile
 
 
-def run_genetic_algorithm(data_src, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma):
+def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma):
+    max_iteration = int(max_iteration)
+    n_pop = int(n_pop)
+
     # Prepare data set
     d_set = Dataset(data_src, min_supp)
     d_set.init_gp_attributes()
@@ -156,6 +159,10 @@ def run_genetic_algorithm(data_src, min_supp, max_iteration, max_evaluations, n_
         except IndexError:
             pass
         it_count += 1
+
+    # Parameter Tuning - Output
+    if data_src == 0.0:
+        return 1/best_sol.cost
 
     # Output
     out = structure()
