@@ -323,6 +323,9 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_pop, pc, 
         wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
         wr_line += "Population size: " + str(out.n_pop) + '\n'
         wr_line += "PC: " + str(out.pc) + '\n'
+        wr_line += "Gamma: " + str(gamma) + '\n'
+        wr_line += "Mu: " + str(mu) + '\n'
+        wr_line += "Sigma: " + str(sigma) + '\n'
 
         wr_line += "Minimum support: " + str(min_supp) + '\n'
         wr_line += "Number of cores: " + str(num_cores) + '\n'

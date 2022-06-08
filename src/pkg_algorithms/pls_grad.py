@@ -235,6 +235,7 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, step_size, 
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
         wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
         wr_line += "Step size: " + str(out.step_size) + '\n'
+        wr_line += "N-var: " + str(nvar) + '\n'
 
         wr_line += "Minimum support: " + str(min_supp) + '\n'
         wr_line += "Number of cores: " + str(num_cores) + '\n'

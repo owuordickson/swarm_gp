@@ -250,10 +250,11 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_particles
         wr_line = "Algorithm: PSO-GRAANK (v2.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
         wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
+        wr_line += "Particle population: " + str(out.n_particles) + '\n'
         wr_line += "Velocity coeff.: " + str(out.W) + '\n'
-        wr_line += "C1 coeff.: " + str(out.c1) + '\n'
-        wr_line += "C2 coeff.: " + str(out.c2) + '\n'
-        wr_line += "No. of particles: " + str(out.n_particles) + '\n'
+        wr_line += "Personal coeff.: " + str(out.c1) + '\n'
+        wr_line += "Global coeff.: " + str(out.c2) + '\n'
+
         wr_line += "Minimum support: " + str(min_supp) + '\n'
         wr_line += "Number of cores: " + str(num_cores) + '\n'
         wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
