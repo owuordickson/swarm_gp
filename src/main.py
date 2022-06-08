@@ -24,6 +24,7 @@ if __name__ == "__main__":
         pcVal = sys.argv[5]
         vFactor = sys.argv[6]
         stepVal = sys.argv[7]
+        pTune = sys.argv[8]
     else:
         optparser = OptionParser()
         optparser.add_option('-a', '--algorithmChoice',
@@ -66,6 +67,11 @@ if __name__ == "__main__":
                              help='step size (PLS)',
                              default=cfg.STEP_SIZE,
                              type='float')
+        optparser.add_option('-x', '--parameterTuning',
+                             dest='pTune',
+                             help='Parameter Tuning',
+                             default=cfg.TUNE_VAL,
+                             type='int')
         (options, args) = optparser.parse_args()
 
         if options.file is None:
@@ -80,6 +86,7 @@ if __name__ == "__main__":
         pcVal = options.pcVal
         vFactor = options.vFactor
         stepVal = options.stepVal
+        pTune = options.pTune
 
     VISUAL = [0, 0, 0]
     if cfg.SHOW_P_MATRIX:
@@ -109,63 +116,91 @@ if __name__ == "__main__":
         print(wr_text)
     elif algChoice == 'ga':
         # GA-GRAANK
-        start = time.time()
-        tracemalloc.start()
-        res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
-                                   cfg.N_POPULATION, pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
-        snapshot = tracemalloc.take_snapshot()
-        end = time.time()
+        if pTune == 1:
+            res_json = ga_grad.parameter_tuning()
+            stamp = time.time()
+            f_name = str('tune_ga' + str(stamp).replace('.', '', 1) + '.txt')
+            Profile.write_file(str(res_json), f_name, cfg.SAVE_RESULTS)
+            print(res_json)
+        else:
+            start = time.time()
+            tracemalloc.start()
+            res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
+                                       cfg.N_POPULATION, pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
+            snapshot = tracemalloc.take_snapshot()
+            end = time.time()
 
-        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-        wr_text += str(res_text)
-        f_name = str('res_ga' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
-        print(wr_text)
+            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+            wr_text += str(res_text)
+            f_name = str('res_ga' + str(end).replace('.', '', 1) + '.txt')
+            Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
+            print(wr_text)
     elif algChoice == 'pso':
         # PSO-GRAANK
-        start = time.time()
-        tracemalloc.start()
-        res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
-                                    cfg.N_PARTICLES, vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
-        snapshot = tracemalloc.take_snapshot()
-        end = time.time()
+        if pTune == 1:
+            res_json = pso_grad.parameter_tuning()
+            stamp = time.time()
+            f_name = str('tune_pso' + str(stamp).replace('.', '', 1) + '.txt')
+            Profile.write_file(str(res_json), f_name, cfg.SAVE_RESULTS)
+            print(res_json)
+        else:
+            start = time.time()
+            tracemalloc.start()
+            res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS,
+                                        cfg.N_PARTICLES, vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
+            snapshot = tracemalloc.take_snapshot()
+            end = time.time()
 
-        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-        wr_text += str(res_text)
-        f_name = str('res_pso' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
-        print(wr_text)
+            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+            wr_text += str(res_text)
+            f_name = str('res_pso' + str(end).replace('.', '', 1) + '.txt')
+            Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
+            print(wr_text)
     elif algChoice == 'prs':
-        # PSO-GRAANK
-        start = time.time()
-        tracemalloc.start()
-        res_text = prs_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, cfg.N_VAR,
-                                    VISUAL)
-        snapshot = tracemalloc.take_snapshot()
-        end = time.time()
+        # PRS-GRAANK
+        if pTune == 1:
+            res_json = prs_grad.parameter_tuning()
+            stamp = time.time()
+            f_name = str('tune_prs' + str(stamp).replace('.', '', 1) + '.txt')
+            Profile.write_file(str(res_json), f_name, cfg.SAVE_RESULTS)
+            print(res_json)
+        else:
+            start = time.time()
+            tracemalloc.start()
+            res_text = prs_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, cfg.N_VAR,
+                                        VISUAL)
+            snapshot = tracemalloc.take_snapshot()
+            end = time.time()
 
-        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-        wr_text += str(res_text)
-        f_name = str('res_prs' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
-        print(wr_text)
+            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+            wr_text += str(res_text)
+            f_name = str('res_prs' + str(end).replace('.', '', 1) + '.txt')
+            Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
+            print(wr_text)
     elif algChoice == 'pls':
-        # PSO-GRAANK
-        start = time.time()
-        tracemalloc.start()
-        res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, stepVal,
-                                    cfg.N_VAR, VISUAL)
-        snapshot = tracemalloc.take_snapshot()
-        end = time.time()
+        # PLS-GRAANK
+        if pTune == 1:
+            res_json = pls_grad.parameter_tuning()
+            stamp = time.time()
+            f_name = str('tune_pls' + str(stamp).replace('.', '', 1) + '.txt')
+            Profile.write_file(str(res_json), f_name, cfg.SAVE_RESULTS)
+            print(res_json)
+        else:
+            start = time.time()
+            tracemalloc.start()
+            res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.MAX_EVALUATIONS, stepVal,
+                                        cfg.N_VAR, VISUAL)
+            snapshot = tracemalloc.take_snapshot()
+            end = time.time()
 
-        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
-        wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
-        wr_text += str(res_text)
-        f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
-        Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
-        print(wr_text)
+            wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+            wr_text += (Profile.get_quick_mem_use(snapshot) + "\n")
+            wr_text += str(res_text)
+            f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
+            Profile.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
+            print(wr_text)
     else:
         print("Invalid Algorithm Choice!")

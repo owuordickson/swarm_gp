@@ -21,6 +21,7 @@ CHANGES:
 
 import random
 import numpy as np
+from bayes_opt import BayesianOptimization
 from ypstruct import structure
 
 from .shared.gp import GI, GP
@@ -273,3 +274,20 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, step_size, 
         wr_line = "Failed: " + str(error)
         print(error)
         return wr_line
+
+
+def parameter_tuning():
+    pbounds = {'data_src': (0, 0), 'min_supp': (0.5, 0.5), 'max_iteration': (1, 10), 'step_size': (0.1, 1),
+               'nvar': (1, 1)}
+
+    optimizer = BayesianOptimization(
+        f= run_hill_climbing,
+        pbounds=pbounds,
+        random_state=1,
+    )
+
+    optimizer.maximize(
+        init_points=10,
+        n_iter=0,
+    )
+    return optimizer.max
