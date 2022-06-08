@@ -99,6 +99,7 @@ if __name__ == "__main__":
     import time
     import tracemalloc
     from pkg_algorithms.shared.profile import Profile
+    from pkg_algorithms.shared.dataset_bfs import CONF_SOURCE
 
     if algChoice == 'aco':
         # ACO-GRAANK
@@ -117,11 +118,13 @@ if __name__ == "__main__":
     elif algChoice == 'ga':
         # GA-GRAANK
         if pTune == 1:
-            res_json = ga_grad.parameter_tuning()
+            res_txt = str(ga_grad.parameter_tuning()) + "\n"
+            res_txt += str("\nFile: " + CONF_SOURCE)
+
             stamp = time.time()
             f_name = str('tune_ga' + str(stamp).replace('.', '', 1) + '.txt')
-            Profile.write_file(str(res_json), f_name, cfg.SAVE_RESULTS)
-            print(res_json)
+            Profile.write_file(res_txt, f_name, cfg.SAVE_RESULTS)
+            print(res_txt)
         else:
             start = time.time()
             tracemalloc.start()
@@ -139,11 +142,13 @@ if __name__ == "__main__":
     elif algChoice == 'pso':
         # PSO-GRAANK
         if pTune == 1:
-            res_json = pso_grad.parameter_tuning()
+            res_txt = str(pso_grad.parameter_tuning()) + "\n"
+            res_txt += str("\nFile: " + CONF_SOURCE)
+
             stamp = time.time()
             f_name = str('tune_pso' + str(stamp).replace('.', '', 1) + '.txt')
-            Profile.write_file(str(res_json), f_name, cfg.SAVE_RESULTS)
-            print(res_json)
+            Profile.write_file(res_txt, f_name, cfg.SAVE_RESULTS)
+            print(res_txt)
         else:
             start = time.time()
             tracemalloc.start()
@@ -161,11 +166,13 @@ if __name__ == "__main__":
     elif algChoice == 'prs':
         # PRS-GRAANK
         if pTune == 1:
-            res_json = prs_grad.parameter_tuning()
+            res_txt = str(prs_grad.parameter_tuning()) + "\n"
+            res_txt += str("\nFile: " + CONF_SOURCE)
+
             stamp = time.time()
             f_name = str('tune_prs' + str(stamp).replace('.', '', 1) + '.txt')
-            Profile.write_file(str(res_json), f_name, cfg.SAVE_RESULTS)
-            print(res_json)
+            Profile.write_file(res_txt, f_name, cfg.SAVE_RESULTS)
+            print(res_txt)
         else:
             start = time.time()
             tracemalloc.start()
@@ -183,11 +190,13 @@ if __name__ == "__main__":
     elif algChoice == 'pls':
         # PLS-GRAANK
         if pTune == 1:
-            res_json = pls_grad.parameter_tuning()
+            res_txt = str(pls_grad.parameter_tuning()) + "\n"
+            res_txt += str("\nFile: " + CONF_SOURCE)
+
             stamp = time.time()
             f_name = str('tune_pls' + str(stamp).replace('.', '', 1) + '.txt')
-            Profile.write_file(str(res_json), f_name, cfg.SAVE_RESULTS)
-            print(res_json)
+            Profile.write_file(res_txt, f_name, cfg.SAVE_RESULTS)
+            print(res_txt)
         else:
             start = time.time()
             tracemalloc.start()
