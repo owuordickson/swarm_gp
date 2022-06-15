@@ -12,7 +12,7 @@ Description:
 import sys
 from optparse import OptionParser
 import config as cfg
-from pkg_algorithms import ga_grad, pso_grad, prs_grad, pls_grad
+from pkg_algorithms import ga_grad, pso_grad, prs_grad, pls_grad, aco_grad, graank, lcm_gp
 
 
 def get_quick_mem_use(s_shot, key_type='lineno'):
@@ -224,5 +224,47 @@ if __name__ == "__main__":
             f_name = str('res_pls' + str(end).replace('.', '', 1) + '.txt')
             sgp.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
             print(wr_text)
+    elif algChoice == 'aco':
+        # ACO-GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = aco_grad.execute(filePath, minSup, numCores, cfg.EVAPORATION_FACTOR, cfg.MAX_ITERATIONS)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
+
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_aco' + str(end).replace('.', '', 1) + '.txt')
+        sgp.write_file(wr_text, f_name, wr=True)
+        print(wr_text)
+    elif algChoice == 'gra':
+        # GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = graank.execute(filePath, minSup, numCores)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
+
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_graank' + str(end).replace('.', '', 1) + '.txt')
+        sgp.write_file(wr_text, f_name, wr=True)
+        print(wr_text)
+    elif algChoice == 'lcm':
+        # GRAANK
+        start = time.time()
+        tracemalloc.start()
+        res_text = lcm_gp.execute(filePath, minSup, numCores)
+        snapshot = tracemalloc.take_snapshot()
+        end = time.time()
+
+        wr_text = ("Run-time: " + str(end - start) + " seconds\n")
+        wr_text += (get_quick_mem_use(snapshot) + "\n")
+        wr_text += str(res_text)
+        f_name = str('res_graank' + str(end).replace('.', '', 1) + '.txt')
+        sgp.write_file(wr_text, f_name, wr=True)
+        print(wr_text)
     else:
         print("Invalid Algorithm Choice!")

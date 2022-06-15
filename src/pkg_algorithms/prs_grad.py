@@ -141,12 +141,13 @@ class RS_Numeric:
             wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
             wr_line += "N-var: " + str(nvar) + '\n'
 
+            wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
+            wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n'
+
             wr_line += "Minimum support: " + str(min_supp) + '\n'
             wr_line += "Number of cores: " + str(num_cores) + '\n'
             wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
-            wr_line += "Number of invalid patterns: " + str(out.invalid_pattern_count) + '\n'
-            wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
-            wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n\n'
+            wr_line += "Number of invalid patterns: " + str(out.invalid_pattern_count) + '\n\n'
 
             for txt in out.titles:
                 try:
@@ -277,12 +278,13 @@ class RS_Bitmap:
             wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
             wr_line += "N-var: " + str(nvar) + '\n'
 
+            wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
+            wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n'
+
             wr_line += "Minimum support: " + str(min_supp) + '\n'
             wr_line += "Number of cores: " + str(num_cores) + '\n'
             wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
-            wr_line += "Number of invalid patterns: " + str(out.invalid_pattern_count) + '\n'
-            wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
-            wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n\n'
+            wr_line += "Number of invalid patterns: " + str(out.invalid_pattern_count) + '\n\n'
 
             for txt in out.titles:
                 try:
