@@ -231,6 +231,58 @@ class GA_Numeric:
         y.position = int(str_y)
         return y
 
+    @staticmethod
+    def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma, visuals):
+        try:
+            if cores > 1:
+                num_cores = cores
+            else:
+                num_cores = sgp.get_num_cores()
+
+            out = GA_Numeric.run(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma)
+            list_gp = out.best_patterns
+
+            wr_line = "Algorithm: GA-GRAANK (v2.0)\n"
+            wr_line += "Search Space: Numeric\n"
+            wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
+            wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
+            wr_line += "Population size: " + str(out.n_pop) + '\n'
+            wr_line += "PC: " + str(out.pc) + '\n'
+            wr_line += "Gamma: " + str(gamma) + '\n'
+            wr_line += "Mu: " + str(mu) + '\n'
+            wr_line += "Sigma: " + str(sigma) + '\n'
+
+            wr_line += "Minimum support: " + str(min_supp) + '\n'
+            wr_line += "Number of cores: " + str(num_cores) + '\n'
+            wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
+            wr_line += "Number of invalid patterns: " + str(out.invalid_pattern_count) + '\n'
+            wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
+            wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n\n'
+
+            for txt in out.titles:
+                try:
+                    wr_line += (str(txt.key) + '. ' + str(txt.value.decode()) + '\n')
+                except AttributeError:
+                    wr_line += (str(txt[0]) + '. ' + str(txt[1].decode()) + '\n')
+
+            wr_line += str("\nFile: " + f_path + '\n')
+            wr_line += str("\nPattern : Support" + '\n')
+
+            for gp in list_gp:
+                wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
+
+            if visuals[1]:
+                wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+                wr_line += out.str_evaluations
+            if visuals[2]:
+                wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
+                wr_line += out.str_iterations
+            return wr_line
+        except ArithmeticError as error:
+            wr_line = "Failed: " + str(error)
+            print(error)
+            return wr_line
+
 
 class GA_Bitmap:
 
@@ -389,59 +441,57 @@ class GA_Bitmap:
         y.gene += sigma * np.random.rand(*ind.shape)
         return y
 
+    @staticmethod
+    def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma, visuals):
+        try:
+            if cores > 1:
+                num_cores = cores
+            else:
+                num_cores = sgp.get_num_cores()
 
-def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma, visuals):
-    try:
-        if cores > 1:
-            num_cores = cores
-        else:
-            num_cores = sgp.get_num_cores()
+            out = GA_Numeric.run(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma)
+            list_gp = out.best_patterns
 
-        out = GA_Numeric.run(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma)
-        list_gp = out.best_patterns
+            wr_line = "Algorithm: GA-GRAANK (v1.0)\n"
+            wr_line += "Search Space: Bitmap\n"
+            wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
+            wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
+            wr_line += "Population size: " + str(out.n_pop) + '\n'
+            wr_line += "PC: " + str(out.pc) + '\n'
+            wr_line += "Gamma: " + str(gamma) + '\n'
+            wr_line += "Mu: " + str(mu) + '\n'
+            wr_line += "Sigma: " + str(sigma) + '\n'
 
-        # Results
-        # sgp.plot_curve(out, 'Genetic Algorithm (GA)')
+            wr_line += "Minimum support: " + str(min_supp) + '\n'
+            wr_line += "Number of cores: " + str(num_cores) + '\n'
+            wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
+            wr_line += "Number of invalid patterns: " + str(out.invalid_pattern_count) + '\n'
+            wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
+            wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n\n'
 
-        wr_line = "Algorithm: GA-GRAANK (v2.0)\n"
-        wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
-        wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
-        wr_line += "Population size: " + str(out.n_pop) + '\n'
-        wr_line += "PC: " + str(out.pc) + '\n'
-        wr_line += "Gamma: " + str(gamma) + '\n'
-        wr_line += "Mu: " + str(mu) + '\n'
-        wr_line += "Sigma: " + str(sigma) + '\n'
+            for txt in out.titles:
+                try:
+                    wr_line += (str(txt.key) + '. ' + str(txt.value.decode()) + '\n')
+                except AttributeError:
+                    wr_line += (str(txt[0]) + '. ' + str(txt[1].decode()) + '\n')
 
-        wr_line += "Minimum support: " + str(min_supp) + '\n'
-        wr_line += "Number of cores: " + str(num_cores) + '\n'
-        wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
-        wr_line += "Number of invalid patterns: " + str(out.invalid_pattern_count) + '\n'
-        wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
-        wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n\n'
+            wr_line += str("\nFile: " + f_path + '\n')
+            wr_line += str("\nPattern : Support" + '\n')
 
-        for txt in out.titles:
-            try:
-                wr_line += (str(txt.key) + '. ' + str(txt.value.decode()) + '\n')
-            except AttributeError:
-                wr_line += (str(txt[0]) + '. ' + str(txt[1].decode()) + '\n')
+            for gp in list_gp:
+                wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
 
-        wr_line += str("\nFile: " + f_path + '\n')
-        wr_line += str("\nPattern : Support" + '\n')
-
-        for gp in list_gp:
-            wr_line += (str(gp.to_string()) + ' : ' + str(round(gp.support, 3)) + '\n')
-
-        if visuals[1]:
-            wr_line += '\n\n' + "Evaluation: Cost" + '\n'
-            wr_line += out.str_evaluations
-        if visuals[2]:
-            wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
-            wr_line += out.str_iterations
-        return wr_line
-    except ArithmeticError as error:
-        wr_line = "Failed: " + str(error)
-        print(error)
-        return wr_line
+            if visuals[1]:
+                wr_line += '\n\n' + "Evaluation: Cost" + '\n'
+                wr_line += out.str_evaluations
+            if visuals[2]:
+                wr_line += '\n\n' + "Iteration: Best Cost" + '\n'
+                wr_line += out.str_iterations
+            return wr_line
+        except ArithmeticError as error:
+            wr_line = "Failed: " + str(error)
+            print(error)
+            return wr_line
 
 
 def parameter_tuning():

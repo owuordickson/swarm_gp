@@ -135,10 +135,8 @@ def execute(f_path, min_supp, cores, max_iteration, nvar, visuals):
         out = RS_Numeric.run(f_path, min_supp, max_iteration, nvar)
         list_gp = out.best_patterns
 
-        # Results
-        # Profile.plot_curve(out, 'Pure Random Search Algorithm (PRS)')
-
         wr_line = "Algorithm: PRS-GRAANK (v2.0)\n"
+        wr_line += "Search Space: Numeric\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
         wr_line += "No. of (dataset) tuples: " + str(out.row_count) + '\n'
         wr_line += "N-var: " + str(nvar) + '\n'

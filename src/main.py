@@ -127,8 +127,8 @@ if __name__ == "__main__":
         else:
             start = time.time()
             tracemalloc.start()
-            res_text = ga_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION, pcVal,
-                                       cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
+            res_text = ga_grad.GA_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION,
+                                                  pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
             snapshot = tracemalloc.take_snapshot()
             end = time.time()
 
