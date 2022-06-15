@@ -25,132 +25,135 @@ from ypstruct import structure
 import so4gp as sgp
 
 from .shared.gp import GI, validate_gp, is_duplicate, check_anti_monotony
-from .shared.dataset_bfs import Dataset
-from .shared.search_space import decode_gp, cost_func
+from .shared.dataset import Dataset
+from .shared.search_spaces import Numeric
 
 
-def run_particle_swarm(data_src, min_supp, max_iteration, n_particles, velocity, coef_p, coef_g):
-    max_iteration = int(max_iteration)
-    n_particles = int(n_particles)
+class PSO_Numeric:
 
-    # Prepare data set
-    d_set = Dataset(data_src, min_supp)
-    d_set.init_gp_attributes()
-    # self.target = 1
-    # self.target_error = 1e-6
-    attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
+    @staticmethod
+    def run(data_src, min_supp, max_iteration, n_particles, velocity, coef_p, coef_g):
+        max_iteration = int(max_iteration)
+        n_particles = int(n_particles)
 
-    if d_set.no_bins:
-        return []
+        # Prepare data set
+        d_set = Dataset(data_src, min_supp)
+        d_set.init_gp_attributes()
+        # self.target = 1
+        # self.target_error = 1e-6
+        attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
 
-    it_count = 0
-    eval_count = 0
-    var_min = 0
-    var_max = int(''.join(['1']*len(attr_keys)), 2)
+        if d_set.no_bins:
+            return []
 
-    # Empty particle template
-    empty_particle = structure()
-    empty_particle.position = None
-    empty_particle.fitness = None
+        it_count = 0
+        eval_count = 0
+        var_min = 0
+        var_max = int(''.join(['1']*len(attr_keys)), 2)
 
-    # Initialize Population
-    particle_pop = empty_particle.repeat(n_particles)
-    for i in range(n_particles):
-        particle_pop[i].position = random.randrange(var_min, var_max)
-        particle_pop[i].fitness = 1
+        # Empty particle template
+        empty_particle = structure()
+        empty_particle.position = None
+        empty_particle.fitness = None
 
-    pbest_pop = particle_pop.copy()
-    gbest_particle = pbest_pop[0]
-
-    # Best particle (ever found)
-    best_particle = empty_particle.deepcopy()
-    best_particle.position = gbest_particle.position
-    best_particle.fitness = cost_func(best_particle.position, attr_keys, d_set)
-
-    velocity_vector = np.ones(n_particles)
-    best_fitness_arr = np.empty(max_iteration)
-    best_patterns = []
-    str_iter = ''
-    str_eval = ''
-
-    invalid_count = 0
-    repeated = 0
-    while it_count < max_iteration:
-        # while eval_count < max_evaluations:
-        # while repeated < 1:
+        # Initialize Population
+        particle_pop = empty_particle.repeat(n_particles)
         for i in range(n_particles):
-            # UPDATED
-            if particle_pop[i].position < var_min or particle_pop[i].position > var_max:
-                particle_pop[i].fitness = 1
+            particle_pop[i].position = random.randrange(var_min, var_max)
+            particle_pop[i].fitness = 1
+
+        pbest_pop = particle_pop.copy()
+        gbest_particle = pbest_pop[0]
+
+        # Best particle (ever found)
+        best_particle = empty_particle.deepcopy()
+        best_particle.position = gbest_particle.position
+        best_particle.fitness = Numeric.cost_func(best_particle.position, attr_keys, d_set)
+
+        velocity_vector = np.ones(n_particles)
+        best_fitness_arr = np.empty(max_iteration)
+        best_patterns = []
+        str_iter = ''
+        str_eval = ''
+
+        invalid_count = 0
+        repeated = 0
+        while it_count < max_iteration:
+            # while eval_count < max_evaluations:
+            # while repeated < 1:
+            for i in range(n_particles):
+                # UPDATED
+                if particle_pop[i].position < var_min or particle_pop[i].position > var_max:
+                    particle_pop[i].fitness = 1
+                else:
+                    particle_pop[i].fitness = Numeric.cost_func(particle_pop[i].position, attr_keys, d_set)
+                    if particle_pop[i].fitness == 1:
+                        invalid_count += 1
+                    eval_count += 1
+                    str_eval += "{}: {} \n".format(eval_count, particle_pop[i].fitness)
+
+                if pbest_pop[i].fitness > particle_pop[i].fitness:
+                    pbest_pop[i].fitness = particle_pop[i].fitness
+                    pbest_pop[i].position = particle_pop[i].position
+
+                if gbest_particle.fitness > particle_pop[i].fitness:
+                    gbest_particle.fitness = particle_pop[i].fitness
+                    gbest_particle.position = particle_pop[i].position
+            # if abs(gbest_fitness_value - self.target) < self.target_error:
+            #    break
+            if best_particle.fitness > gbest_particle.fitness:
+                best_particle = gbest_particle.deepcopy()
+
+            for i in range(n_particles):
+                new_velocity = (velocity * velocity_vector[i]) + \
+                               (coef_p * random.random()) * (pbest_pop[i].position - particle_pop[i].position) + \
+                               (coef_g * random.random()) * (gbest_particle.position - particle_pop[i].position)
+                particle_pop[i].position = particle_pop[i].position + new_velocity
+
+            best_gp = validate_gp(d_set, Numeric.decode_gp(attr_keys, best_particle.position))
+            is_present = is_duplicate(best_gp, best_patterns)
+            is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
+            if is_present or is_sub:
+                repeated += 1
             else:
-                particle_pop[i].fitness = cost_func(particle_pop[i].position, attr_keys, d_set)
-                if particle_pop[i].fitness == 1:
-                    invalid_count += 1
-                eval_count += 1
-                str_eval += "{}: {} \n".format(eval_count, particle_pop[i].fitness)
+                if best_gp.support >= min_supp:
+                    best_patterns.append(best_gp)
+                # else:
+                #    best_particle.fitness = 1
 
-            if pbest_pop[i].fitness > particle_pop[i].fitness:
-                pbest_pop[i].fitness = particle_pop[i].fitness
-                pbest_pop[i].position = particle_pop[i].position
+            try:
+                # Show Iteration Information
+                best_fitness_arr[it_count] = best_particle.fitness
+                str_iter += "{}: {} \n".format(it_count, best_particle.fitness)
+            except IndexError:
+                pass
+            it_count += 1
 
-            if gbest_particle.fitness > particle_pop[i].fitness:
-                gbest_particle.fitness = particle_pop[i].fitness
-                gbest_particle.position = particle_pop[i].position
-        # if abs(gbest_fitness_value - self.target) < self.target_error:
-        #    break
-        if best_particle.fitness > gbest_particle.fitness:
-            best_particle = gbest_particle.deepcopy()
+        # Parameter Tuning - Output
+        if data_src == 0.0:
+            return 1/best_particle.fitness
 
-        for i in range(n_particles):
-            new_velocity = (velocity * velocity_vector[i]) + \
-                           (coef_p * random.random()) * (pbest_pop[i].position - particle_pop[i].position) + \
-                           (coef_g * random.random()) * (gbest_particle.position - particle_pop[i].position)
-            particle_pop[i].position = particle_pop[i].position + new_velocity
+        # Output
+        out = structure()
+        out.pop = particle_pop
+        out.best_costs = best_fitness_arr
+        out.gbest_position = gbest_particle.position
+        out.best_patterns = best_patterns
+        out.invalid_pattern_count = invalid_count
+        out.str_iterations = str_iter
+        out.iteration_count = it_count
+        out.max_iteration = max_iteration
+        out.str_evaluations = str_eval
+        out.cost_evaluations = eval_count
+        out.n_particles = n_particles
+        out.W = velocity
+        out.c1 = coef_p
+        out.c2 = coef_g
 
-        best_gp = validate_gp(d_set, decode_gp(attr_keys, best_particle.position))
-        is_present = is_duplicate(best_gp, best_patterns)
-        is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
-        if is_present or is_sub:
-            repeated += 1
-        else:
-            if best_gp.support >= min_supp:
-                best_patterns.append(best_gp)
-            # else:
-            #    best_particle.fitness = 1
-
-        try:
-            # Show Iteration Information
-            best_fitness_arr[it_count] = best_particle.fitness
-            str_iter += "{}: {} \n".format(it_count, best_particle.fitness)
-        except IndexError:
-            pass
-        it_count += 1
-
-    # Parameter Tuning - Output
-    if data_src == 0.0:
-        return 1/best_particle.fitness
-
-    # Output
-    out = structure()
-    out.pop = particle_pop
-    out.best_costs = best_fitness_arr
-    out.gbest_position = gbest_particle.position
-    out.best_patterns = best_patterns
-    out.invalid_pattern_count = invalid_count
-    out.str_iterations = str_iter
-    out.iteration_count = it_count
-    out.max_iteration = max_iteration
-    out.str_evaluations = str_eval
-    out.cost_evaluations = eval_count
-    out.n_particles = n_particles
-    out.W = velocity
-    out.c1 = coef_p
-    out.c2 = coef_g
-
-    out.titles = d_set.titles
-    out.col_count = d_set.col_count
-    out.row_count = d_set.row_count
-    return out
+        out.titles = d_set.titles
+        out.col_count = d_set.col_count
+        out.row_count = d_set.row_count
+        return out
 
 
 def execute(f_path, min_supp, cores, max_iteration, n_particles, velocity, coef_p, coef_g, visuals):
@@ -160,7 +163,7 @@ def execute(f_path, min_supp, cores, max_iteration, n_particles, velocity, coef_
         else:
             num_cores = sgp.get_num_cores()
 
-        out = run_particle_swarm(f_path, min_supp, max_iteration, n_particles, velocity, coef_p, coef_g)
+        out = PSO_Numeric.run(f_path, min_supp, max_iteration, n_particles, velocity, coef_p, coef_g)
         list_gp = out.best_patterns
 
         # Results
@@ -211,7 +214,7 @@ def parameter_tuning():
                'velocity': (0.1, 1), 'coef_p': (0.1, 0.9), 'coef_g': (0.1, 0.9)}
 
     optimizer = BayesianOptimization(
-        f=run_particle_swarm,
+        f=PSO_Numeric.run,
         pbounds=pbounds,
         random_state=1,
     )

@@ -8,6 +8,8 @@
 @created: "12 July 2019"
 @modified: "06 Sep 2021"
 
+Data set class that implements breadth-first search.
+
 Changes
 -------
 1. Fetch all binaries during initialization

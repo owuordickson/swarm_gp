@@ -20,7 +20,7 @@ from numpy import random as rand
 from ypstruct import structure
 
 from src.pkg_algorithms.shared.gp import GI, GP
-from src.pkg_algorithms.shared.dataset_bfs import Dataset
+from src.pkg_algorithms.shared.dataset import Dataset
 from src.pkg_algorithms.shared.profile import Profile
 from src import config as cfg
 

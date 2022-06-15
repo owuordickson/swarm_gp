@@ -112,7 +112,7 @@ if __name__ == "__main__":
     import time
     import tracemalloc
     import so4gp as sgp
-    from pkg_algorithms.shared.dataset_bfs import CONF_SOURCE
+    from pkg_algorithms.shared.dataset import CONF_SOURCE
 
     if algChoice == 'ga':
         # GA-GRAANK

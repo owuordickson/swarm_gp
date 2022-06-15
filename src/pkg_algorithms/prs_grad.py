@@ -27,99 +27,102 @@ from ypstruct import structure
 import so4gp as sgp
 
 from .shared.gp import GI, validate_gp, is_duplicate, check_anti_monotony
-from .shared.dataset_bfs import Dataset
-from .shared.search_space import decode_gp, cost_func, apply_bound
+from .shared.dataset import Dataset
+from .shared.search_spaces import Numeric
 
 
-def run_pure_random_search(data_src, min_supp, max_iteration, nvar):
-    max_iteration = int(max_iteration)
-    nvar = int(nvar)
+class RS_Numeric:
 
-    # Prepare data set
-    d_set = Dataset(data_src, min_supp)
-    d_set.init_gp_attributes()
-    attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
+    @staticmethod
+    def run(data_src, min_supp, max_iteration, nvar):
+        max_iteration = int(max_iteration)
+        nvar = int(nvar)
 
-    if d_set.no_bins:
-        return []
+        # Prepare data set
+        d_set = Dataset(data_src, min_supp)
+        d_set.init_gp_attributes()
+        attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
 
-    # Parameters
-    it_count = 0
-    var_min = 0
-    var_max = int(''.join(['1'] * len(attr_keys)), 2)
-    eval_count = 0
+        if d_set.no_bins:
+            return []
 
-    # Empty Individual Template
-    candidate = structure()
-    candidate.position = None
-    candidate.cost = float('inf')
+        # Parameters
+        it_count = 0
+        var_min = 0
+        var_max = int(''.join(['1'] * len(attr_keys)), 2)
+        eval_count = 0
 
-    # INITIALIZE
-    best_sol = candidate.deepcopy()
-    best_sol.position = np.random.uniform(var_min, var_max, nvar)
-    best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
+        # Empty Individual Template
+        candidate = structure()
+        candidate.position = None
+        candidate.cost = float('inf')
 
-    # Best Cost of Iteration
-    best_costs = np.empty(max_iteration)
-    best_patterns = []
-    str_iter = ''
-    str_eval = ''
+        # INITIALIZE
+        best_sol = candidate.deepcopy()
+        best_sol.position = np.random.uniform(var_min, var_max, nvar)
+        best_sol.cost = Numeric.cost_func(best_sol.position, attr_keys, d_set)
 
-    invalid_count = 0
-    repeated = 0
-    while it_count < max_iteration:
-        # while eval_count < max_evaluations:
+        # Best Cost of Iteration
+        best_costs = np.empty(max_iteration)
+        best_patterns = []
+        str_iter = ''
+        str_eval = ''
 
-        candidate.position = ((var_min + random.random()) * (var_max - var_min))
-        apply_bound(candidate, var_min, var_max)
-        candidate.cost = cost_func(candidate.position, attr_keys, d_set)
+        invalid_count = 0
+        repeated = 0
+        while it_count < max_iteration:
+            # while eval_count < max_evaluations:
 
-        if candidate.cost == 1:
-            invalid_count += 1
-        if candidate.cost < best_sol.cost:
-            best_sol = candidate.deepcopy()
-        eval_count += 1
-        str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+            candidate.position = ((var_min + random.random()) * (var_max - var_min))
+            Numeric.apply_bound(candidate, var_min, var_max)
+            candidate.cost = Numeric.cost_func(candidate.position, attr_keys, d_set)
 
-        best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
-        is_present = is_duplicate(best_gp, best_patterns)
-        is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
-        if is_present or is_sub:
-            repeated += 1
-        else:
-            if best_gp.support >= min_supp:
-                best_patterns.append(best_gp)
-            # else:
-            #    best_sol.cost = 1
+            if candidate.cost == 1:
+                invalid_count += 1
+            if candidate.cost < best_sol.cost:
+                best_sol = candidate.deepcopy()
+            eval_count += 1
+            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
-        try:
-            # Show Iteration Information
-            # Store Best Cost
-            best_costs[it_count] = best_sol.cost
-            str_iter += "{}: {} \n".format(it_count, best_sol.cost)
-        except IndexError:
-            pass
-        it_count += 1
+            best_gp = validate_gp(d_set, Numeric.decode_gp(attr_keys, best_sol.position))
+            is_present = is_duplicate(best_gp, best_patterns)
+            is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
+            if is_present or is_sub:
+                repeated += 1
+            else:
+                if best_gp.support >= min_supp:
+                    best_patterns.append(best_gp)
+                # else:
+                #    best_sol.cost = 1
 
-    # Parameter Tuning - Output
-    if data_src == 0.0:
-        return 1/best_sol.cost
+            try:
+                # Show Iteration Information
+                # Store Best Cost
+                best_costs[it_count] = best_sol.cost
+                str_iter += "{}: {} \n".format(it_count, best_sol.cost)
+            except IndexError:
+                pass
+            it_count += 1
 
-    # Output
-    out = structure()
-    out.best_sol = best_sol
-    out.best_costs = best_costs
-    out.best_patterns = best_patterns
-    out.invalid_pattern_count = invalid_count
-    out.str_iterations = str_iter
-    out.iteration_count = it_count
-    out.max_iteration = max_iteration
-    out.str_evaluations = str_eval
-    out.cost_evaluations = eval_count
-    out.titles = d_set.titles
-    out.col_count = d_set.col_count
-    out.row_count = d_set.row_count
-    return out
+        # Parameter Tuning - Output
+        if data_src == 0.0:
+            return 1/best_sol.cost
+
+        # Output
+        out = structure()
+        out.best_sol = best_sol
+        out.best_costs = best_costs
+        out.best_patterns = best_patterns
+        out.invalid_pattern_count = invalid_count
+        out.str_iterations = str_iter
+        out.iteration_count = it_count
+        out.max_iteration = max_iteration
+        out.str_evaluations = str_eval
+        out.cost_evaluations = eval_count
+        out.titles = d_set.titles
+        out.col_count = d_set.col_count
+        out.row_count = d_set.row_count
+        return out
 
 
 def execute(f_path, min_supp, cores, max_iteration, nvar, visuals):
@@ -129,7 +132,7 @@ def execute(f_path, min_supp, cores, max_iteration, nvar, visuals):
         else:
             num_cores = sgp.get_num_cores()
 
-        out = run_pure_random_search(f_path, min_supp, max_iteration, nvar)
+        out = RS_Numeric.run(f_path, min_supp, max_iteration, nvar)
         list_gp = out.best_patterns
 
         # Results
@@ -176,7 +179,7 @@ def parameter_tuning():
     pbounds = {'data_src': (0, 0), 'min_supp': (0.5, 0.5), 'max_iteration': (1, 10), 'nvar': (1, 1)}
 
     optimizer = BayesianOptimization(
-        f=run_pure_random_search,
+        f=RS_Numeric.run,
         pbounds=pbounds,
         random_state=1,
     )

@@ -26,110 +26,113 @@ from ypstruct import structure
 import so4gp as sgp
 
 from .shared.gp import GI, validate_gp, is_duplicate, check_anti_monotony
-from .shared.dataset_bfs import Dataset
-from .shared.search_space import decode_gp, cost_func, apply_bound
+from .shared.dataset import Dataset
+from .shared.search_spaces import Numeric
 
 
-# hill climbing local search algorithm
-def run_hill_climbing(data_src, min_supp, max_iteration, step_size, nvar):
-    max_iteration = int(max_iteration)
-    nvar = int(nvar)
+class LS_Numeric:
 
-    # Prepare data set
-    d_set = Dataset(data_src, min_supp)
-    d_set.init_gp_attributes()
-    attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
+    # hill climbing local search algorithm
+    @staticmethod
+    def run(data_src, min_supp, max_iteration, step_size, nvar):
+        max_iteration = int(max_iteration)
+        nvar = int(nvar)
 
-    if d_set.no_bins:
-        return []
+        # Prepare data set
+        d_set = Dataset(data_src, min_supp)
+        d_set.init_gp_attributes()
+        attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
 
-    # Parameters
-    it_count = 0
-    var_min = 0
-    var_max = int(''.join(['1'] * len(attr_keys)), 2)
-    eval_count = 0
+        if d_set.no_bins:
+            return []
 
-    # Empty Individual Template
-    best_sol = structure()
-    candidate = structure()
-    # best_sol.position = None
-    # best_sol.cost = float('inf')
+        # Parameters
+        it_count = 0
+        var_min = 0
+        var_max = int(''.join(['1'] * len(attr_keys)), 2)
+        eval_count = 0
 
-    # INITIALIZE
-    # best_sol.position = np.random.uniform(var_min, var_max, nvar)
+        # Empty Individual Template
+        best_sol = structure()
+        candidate = structure()
+        # best_sol.position = None
+        # best_sol.cost = float('inf')
 
-    # Best Cost of Iteration
-    best_costs = np.empty(max_iteration)
-    best_patterns = []
-    str_iter = ''
-    str_eval = ''
-    repeated = 0
+        # INITIALIZE
+        # best_sol.position = np.random.uniform(var_min, var_max, nvar)
 
-    # generate an initial point
-    best_sol.position = None
-    # candidate.position = None
-    if best_sol.position is None:
-        best_sol.position = np.random.uniform(var_min, var_max, nvar)
-    # evaluate the initial point
-    apply_bound(best_sol, var_min, var_max)
-    best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
+        # Best Cost of Iteration
+        best_costs = np.empty(max_iteration)
+        best_patterns = []
+        str_iter = ''
+        str_eval = ''
+        repeated = 0
 
-    invalid_count = 0
-    # run the hill climb
-    while it_count < max_iteration:
-        # while eval_count < max_evaluations:
-        # take a step
-        candidate.position = None
-        if candidate.position is None:
-            candidate.position = best_sol.position + (random.randrange(var_min, var_max) * step_size)
-        apply_bound(candidate, var_min, var_max)
-        candidate.cost = cost_func(candidate.position, attr_keys, d_set)
+        # generate an initial point
+        best_sol.position = None
+        # candidate.position = None
+        if best_sol.position is None:
+            best_sol.position = np.random.uniform(var_min, var_max, nvar)
+        # evaluate the initial point
+        Numeric.apply_bound(best_sol, var_min, var_max)
+        best_sol.cost = Numeric.cost_func(best_sol.position, attr_keys, d_set)
 
-        if candidate.cost == 1:
-            invalid_count += 1
-        if candidate.cost < best_sol.cost:
-            best_sol = candidate.deepcopy()
-        eval_count += 1
-        str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+        invalid_count = 0
+        # run the hill climb
+        while it_count < max_iteration:
+            # while eval_count < max_evaluations:
+            # take a step
+            candidate.position = None
+            if candidate.position is None:
+                candidate.position = best_sol.position + (random.randrange(var_min, var_max) * step_size)
+            Numeric.apply_bound(candidate, var_min, var_max)
+            candidate.cost = Numeric.cost_func(candidate.position, attr_keys, d_set)
 
-        best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
-        is_present = is_duplicate(best_gp, best_patterns)
-        is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
-        if is_present or is_sub:
-            repeated += 1
-        else:
-            if best_gp.support >= min_supp:
-                best_patterns.append(best_gp)
+            if candidate.cost == 1:
+                invalid_count += 1
+            if candidate.cost < best_sol.cost:
+                best_sol = candidate.deepcopy()
+            eval_count += 1
+            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
-        try:
-            # Show Iteration Information
-            # Store Best Cost
-            best_costs[it_count] = best_sol.cost
-            str_iter += "{}: {} \n".format(it_count, best_sol.cost)
-        except IndexError:
-            pass
-        it_count += 1
+            best_gp = validate_gp(d_set, Numeric.decode_gp(attr_keys, best_sol.position))
+            is_present = is_duplicate(best_gp, best_patterns)
+            is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
+            if is_present or is_sub:
+                repeated += 1
+            else:
+                if best_gp.support >= min_supp:
+                    best_patterns.append(best_gp)
 
-    # Parameter Tuning - Output
-    if data_src == 0.0:
-        return 1/best_sol.cost
+            try:
+                # Show Iteration Information
+                # Store Best Cost
+                best_costs[it_count] = best_sol.cost
+                str_iter += "{}: {} \n".format(it_count, best_sol.cost)
+            except IndexError:
+                pass
+            it_count += 1
 
-    # Output
-    out = structure()
-    out.best_sol = best_sol
-    out.best_costs = best_costs
-    out.best_patterns = best_patterns
-    out.invalid_pattern_count = invalid_count
-    out.str_iterations = str_iter
-    out.iteration_count = it_count
-    out.max_iteration = max_iteration
-    out.str_evaluations = str_eval
-    out.cost_evaluations = eval_count
-    out.step_size = step_size
-    out.titles = d_set.titles
-    out.col_count = d_set.col_count
-    out.row_count = d_set.row_count
-    return out
+        # Parameter Tuning - Output
+        if data_src == 0.0:
+            return 1/best_sol.cost
+
+        # Output
+        out = structure()
+        out.best_sol = best_sol
+        out.best_costs = best_costs
+        out.best_patterns = best_patterns
+        out.invalid_pattern_count = invalid_count
+        out.str_iterations = str_iter
+        out.iteration_count = it_count
+        out.max_iteration = max_iteration
+        out.str_evaluations = str_eval
+        out.cost_evaluations = eval_count
+        out.step_size = step_size
+        out.titles = d_set.titles
+        out.col_count = d_set.col_count
+        out.row_count = d_set.row_count
+        return out
 
 
 def execute(f_path, min_supp, cores, max_iteration, step_size, nvar, visuals):
@@ -139,7 +142,7 @@ def execute(f_path, min_supp, cores, max_iteration, step_size, nvar, visuals):
         else:
             num_cores = sgp.get_num_cores()
 
-        out = run_hill_climbing(f_path, min_supp, max_iteration, step_size, nvar)
+        out = LS_Numeric.run(f_path, min_supp, max_iteration, step_size, nvar)
         list_gp = out.best_patterns
 
         # Results
@@ -188,7 +191,7 @@ def parameter_tuning():
                'nvar': (1, 1)}
 
     optimizer = BayesianOptimization(
-        f=run_hill_climbing,
+        f=LS_Numeric.run,
         pbounds=pbounds,
         random_state=1,
     )

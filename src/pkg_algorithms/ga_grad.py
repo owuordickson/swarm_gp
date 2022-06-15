@@ -26,203 +26,368 @@ from ypstruct import structure
 import so4gp as sgp
 
 from .shared.gp import GI, validate_gp, is_duplicate, check_anti_monotony
-from .shared.dataset_bfs import Dataset
-from .shared.search_space import decode_gp, cost_func, apply_bound
+from .shared.dataset import Dataset
+from .shared.search_spaces import Bitmap, Numeric
 
 
-def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma):
-    max_iteration = int(max_iteration)
-    n_pop = int(n_pop)
+class GA_Numeric:
 
-    # Prepare data set
-    d_set = Dataset(data_src, min_supp)
-    d_set.init_gp_attributes()
-    attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
+    def __int__(self):
+        pass
 
-    if d_set.no_bins:
-        return []
+    @staticmethod
+    def run(data_src, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma):
 
-    # Problem Information
-    # cost_func
+        max_iteration = int(max_iteration)
 
-    # Parameters
-    # pc: Proportion of children (if its 1, then nc == npop
-    it_count = 0
-    eval_count = 0
-    var_min = 0
-    var_max = int(''.join(['1'] * len(attr_keys)), 2)
+        n_pop = int(n_pop)
 
-    nc = int(np.round(pc * n_pop / 2) * 2)  # Number of children. np.round is used to get even number of children
+        # Prepare data set
+        d_set = Dataset(data_src, min_supp)
+        d_set.init_gp_attributes()
+        attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
 
-    # Empty Individual Template
-    empty_individual = structure()
-    empty_individual.position = None
-    empty_individual.cost = None
+        if d_set.no_bins:
+            return []
 
-    # Initialize Population
-    pop = empty_individual.repeat(n_pop)
-    for i in range(n_pop):
-        pop[i].position = random.randrange(var_min, var_max)
-        pop[i].cost = 1  # cost_func(pop[i].position, attr_keys, d_set)
-        # if pop[i].cost < best_sol.cost:
-        #    best_sol = pop[i].deepcopy()
+        # Parameters
+        # pc: Proportion of children (if its 1, then nc == npop
+        it_count = 0
+        eval_count = 0
+        var_min = 0
+        var_max = int(''.join(['1'] * len(attr_keys)), 2)
 
-    # Best Solution Ever Found
-    best_sol = empty_individual.deepcopy()
-    best_sol.position = pop[0].position
-    best_sol.cost = cost_func(best_sol.position, attr_keys, d_set)
+        nc = int(np.round(pc * n_pop / 2) * 2)  # Number of children. np.round is used to get even number of children
 
-    # Best Cost of Iteration
-    best_costs = np.empty(max_iteration)
-    best_patterns = []
-    str_iter = ''
-    str_eval = ''
-    invalid_count = 0  # TO BE REMOVED
+        # Empty Individual Template
+        empty_individual = structure()
+        empty_individual.position = None
+        empty_individual.cost = None
 
-    repeated = 0
-    while it_count < max_iteration:
-        # while eval_count < max_evaluations:
-        # while repeated < 1:
+        # Initialize Population
+        pop = empty_individual.repeat(n_pop)
+        for i in range(n_pop):
+            pop[i].position = random.randrange(var_min, var_max)
+            pop[i].cost = 1  # cost_func(pop[i].position, attr_keys, d_set)
+            # if pop[i].cost < best_sol.cost:
+            #    best_sol = pop[i].deepcopy()
 
-        c_pop = []  # Children population
-        for _ in range(nc // 2):
-            # Select Parents
-            q = np.random.permutation(n_pop)
-            p1 = pop[q[0]]
-            p2 = pop[q[1]]
+        # Best Solution Ever Found
+        best_sol = empty_individual.deepcopy()
+        best_sol.position = pop[0].position
+        best_sol.cost = Numeric.cost_func(best_sol.position, attr_keys, d_set)
 
-            # a. Perform Crossover
-            c1, c2 = crossover(p1, p2, gamma)
+        # Best Cost of Iteration
+        best_costs = np.empty(max_iteration)
+        best_patterns = []
+        str_iter = ''
+        str_eval = ''
+        invalid_count = 0  # TO BE REMOVED
 
-            # Apply Bound
-            apply_bound(c1, var_min, var_max)
-            apply_bound(c2, var_min, var_max)
+        repeated = 0
+        while it_count < max_iteration:
+            # while eval_count < max_evaluations:
+            # while repeated < 1:
 
-            # Evaluate First Offspring
-            c1.cost = cost_func(c1.position, attr_keys, d_set)
-            if c1.cost == 1:
-                invalid_count += 1
-            if c1.cost < best_sol.cost:
-                best_sol = c1.deepcopy()
-            eval_count += 1
-            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+            c_pop = []  # Children population
+            for _ in range(nc // 2):
+                # Select Parents
+                q = np.random.permutation(n_pop)
+                p1 = pop[q[0]]
+                p2 = pop[q[1]]
 
-            # Evaluate Second Offspring
-            c2.cost = cost_func(c2.position, attr_keys, d_set)
-            if c2.cost == 1:
-                invalid_count += 1
-            if c2.cost < best_sol.cost:
-                best_sol = c2.deepcopy()
-            eval_count += 1
-            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+                # a. Perform Crossover
+                c1, c2 = GA_Numeric.crossover(p1, p2, gamma)
 
-            # b. Perform Mutation
-            c1 = mutate(c1, mu, sigma)
-            c2 = mutate(c2, mu, sigma)
+                # Apply Bound
+                Numeric.apply_bound(c1, var_min, var_max)
+                Numeric.apply_bound(c2, var_min, var_max)
 
-            # Apply Bound
-            apply_bound(c1, var_min, var_max)
-            apply_bound(c2, var_min, var_max)
+                # Evaluate First Offspring
+                c1.cost = Numeric.cost_func(c1.position, attr_keys, d_set)
+                if c1.cost == 1:
+                    invalid_count += 1
+                if c1.cost < best_sol.cost:
+                    best_sol = c1.deepcopy()
+                eval_count += 1
+                str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
-            # Evaluate First Offspring
-            c1.cost = cost_func(c1.position, attr_keys, d_set)
-            if c1.cost == 1:
-                invalid_count += 1
-            if c1.cost < best_sol.cost:
-                best_sol = c1.deepcopy()
-            eval_count += 1
-            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+                # Evaluate Second Offspring
+                c2.cost = Numeric.cost_func(c2.position, attr_keys, d_set)
+                if c2.cost == 1:
+                    invalid_count += 1
+                if c2.cost < best_sol.cost:
+                    best_sol = c2.deepcopy()
+                eval_count += 1
+                str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
-            # Evaluate Second Offspring
-            c2.cost = cost_func(c2.position, attr_keys, d_set)
-            if c2.cost == 1:
-                invalid_count += 1
-            if c2.cost < best_sol.cost:
-                best_sol = c2.deepcopy()
-            eval_count += 1
-            str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+                # b. Perform Mutation
+                c1 = GA_Numeric.mutate(c1, mu, sigma)
+                c2 = GA_Numeric.mutate(c2, mu, sigma)
 
-            # c. Add Offsprings to c_pop
-            c_pop.append(c1)
-            c_pop.append(c2)
+                # Apply Bound
+                Numeric.apply_bound(c1, var_min, var_max)
+                Numeric.apply_bound(c2, var_min, var_max)
 
-        # Merge, Sort and Select
-        pop += c_pop
-        pop = sorted(pop, key=lambda x: x.cost)
-        pop = pop[0:n_pop]
+                # Evaluate First Offspring
+                c1.cost = Numeric.cost_func(c1.position, attr_keys, d_set)
+                if c1.cost == 1:
+                    invalid_count += 1
+                if c1.cost < best_sol.cost:
+                    best_sol = c1.deepcopy()
+                eval_count += 1
+                str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
-        best_gp = validate_gp(d_set, decode_gp(attr_keys, best_sol.position))
-        is_present = is_duplicate(best_gp, best_patterns)
-        is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
-        if is_present or is_sub:
-            repeated += 1
-        else:
-            if best_gp.support >= min_supp:
-                best_patterns.append(best_gp)
-            # else:
-            #    best_sol.cost = 1
+                # Evaluate Second Offspring
+                c2.cost = Numeric.cost_func(c2.position, attr_keys, d_set)
+                if c2.cost == 1:
+                    invalid_count += 1
+                if c2.cost < best_sol.cost:
+                    best_sol = c2.deepcopy()
+                eval_count += 1
+                str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
-        try:
-            # Show Iteration Information
-            # Store Best Cost
-            best_costs[it_count] = best_sol.cost
-            str_iter += "{}: {} \n".format(it_count, best_sol.cost)
-        except IndexError:
-            pass
-        it_count += 1
+                # c. Add Offsprings to c_pop
+                c_pop.append(c1)
+                c_pop.append(c2)
 
-    # Parameter Tuning - Output
-    if data_src == 0.0:
-        return 1/best_sol.cost
+            # Merge, Sort and Select
+            pop += c_pop
+            pop = sorted(pop, key=lambda x: x.cost)
+            pop = pop[0:n_pop]
 
-    # Output
-    out = structure()
-    out.pop = pop
-    out.best_sol = best_sol
-    out.best_costs = best_costs
-    out.best_patterns = best_patterns
-    out.invalid_pattern_count = invalid_count
-    out.str_iterations = str_iter
-    out.str_evaluations = str_eval
-    out.iteration_count = it_count
-    out.max_iteration = max_iteration
-    out.cost_evaluations = eval_count
-    out.n_pop = n_pop
-    out.pc = pc
-    out.titles = d_set.titles
-    out.col_count = d_set.col_count
-    out.row_count = d_set.row_count
-    return out
+            best_gp = validate_gp(d_set, Numeric.decode_gp(attr_keys, best_sol.position))
+            is_present = is_duplicate(best_gp, best_patterns)
+            is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
+            if is_present or is_sub:
+                repeated += 1
+            else:
+                if best_gp.support >= min_supp:
+                    best_patterns.append(best_gp)
+                # else:
+                #    best_sol.cost = 1
+
+            try:
+                # Show Iteration Information
+                # Store Best Cost
+                best_costs[it_count] = best_sol.cost
+                str_iter += "{}: {} \n".format(it_count, best_sol.cost)
+            except IndexError:
+                pass
+            it_count += 1
+
+        # Parameter Tuning - Output
+        if data_src == 0.0:
+            return 1 / best_sol.cost
+
+        # Output
+        out = structure()
+        out.pop = pop
+        out.best_sol = best_sol
+        out.best_costs = best_costs
+        out.best_patterns = best_patterns
+        out.invalid_pattern_count = invalid_count
+        out.str_iterations = str_iter
+        out.str_evaluations = str_eval
+        out.iteration_count = it_count
+        out.max_iteration = max_iteration
+        out.cost_evaluations = eval_count
+        out.n_pop = n_pop
+        out.pc = pc
+        out.titles = d_set.titles
+        out.col_count = d_set.col_count
+        out.row_count = d_set.row_count
+        return out
+
+    @staticmethod
+    def crossover(p1, p2, gamma=0.1):
+        c1 = p1.deepcopy()
+
+        c2 = p2.deepcopy()
+        alpha = np.random.uniform(0, gamma, 1)
+        c1.position = alpha * p1.position + (1 - alpha) * p2.position
+        c2.position = alpha * p2.position + (1 - alpha) * p1.position
+        return c1, c2
+
+    @staticmethod
+    def mutate(x, mu, sigma):
+        y = x.deepcopy()
+
+        str_x = str(int(y.position))
+        # flag = np.random.rand(*x.position.shape) <= mu
+        # ind = np.argwhere(flag)
+        # y.position[ind] += sigma*np.random.rand(*ind.shape)
+        flag = np.random.rand(*(len(str_x),)) <= mu
+        ind = np.argwhere(flag)
+        str_y = "0"
+        for i in ind:
+            val = float(str_x[i[0]])
+            val += sigma * np.random.uniform(0, 1, 1)
+            if i[0] == 0:
+                str_y = "".join(("", "{}".format(int(val)), str_x[1:]))
+            else:
+                str_y = "".join((str_x[:i[0] - 1], "{}".format(int(val)), str_x[i[0]:]))
+            str_x = str_y
+        y.position = int(str_y)
+        return y
 
 
-def crossover(p1, p2, gamma=0.1):
-    c1 = p1.deepcopy()
-    c2 = p2.deepcopy()
-    alpha = np.random.uniform(0, gamma, 1)
-    c1.position = alpha*p1.position + (1-alpha)*p2.position
-    c2.position = alpha*p2.position + (1-alpha)*p1.position
-    return c1, c2
+class GA_Bitmap:
 
+    def __int__(self):
+        pass
 
-def mutate(x, mu, sigma):
-    y = x.deepcopy()
-    str_x = str(int(y.position))
-    # flag = np.random.rand(*x.position.shape) <= mu
-    # ind = np.argwhere(flag)
-    # y.position[ind] += sigma*np.random.rand(*ind.shape)
-    flag = np.random.rand(*(len(str_x),)) <= mu
-    ind = np.argwhere(flag)
-    str_y = "0"
-    for i in ind:
-        val = float(str_x[i[0]])
-        val += sigma*np.random.uniform(0, 1, 1)
-        if i[0] == 0:
-            str_y = "".join(("", "{}".format(int(val)), str_x[1:]))
-        else:
-            str_y = "".join((str_x[:i[0] - 1], "{}".format(int(val)), str_x[i[0]:]))
-        str_x = str_y
-    y.position = int(str_y)
-    return y
+    @staticmethod
+    def run(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma):
+        # Prepare data set
+        d_set = Dataset(f_path, min_supp)
+        d_set.init_gp_attributes()
+        attr_keys = [GI(x[0], x[1].decode()).as_string() for x in d_set.valid_bins[:, 0]]
+        attr_keys_spl = [attr_keys[x:x + 2] for x in range(0, len(attr_keys), 2)]
+
+        if d_set.no_bins:
+            return []
+
+        # Parameters
+        it_count = 0
+        eval_count = 0
+        nc = int(np.round(pc * n_pop / 2) * 2)  # Number of children. np.round is used to get even number of children
+
+        # Empty Individual Template
+        empty_individual = structure()
+        empty_individual.gene = None
+        empty_individual.cost = None
+
+        # Initialize Population
+        pop = empty_individual.repeat(n_pop)
+        for i in range(n_pop):
+            pop[i].gene = Bitmap.build_gp_gene(attr_keys_spl)
+            pop[i].cost = 1
+
+        # Best Solution Ever Found
+        best_sol = empty_individual.deepcopy()
+        best_sol.gene = pop[0].gene
+        best_sol.cost = Bitmap.cost_func(best_sol.gene, attr_keys_spl, d_set)
+
+        # Best Cost of Iteration
+        best_costs = np.empty(max_iteration)
+        best_genes = []
+        best_patterns = []
+        str_iter = ''
+        str_eval = ''
+
+        repeated = 0
+        while it_count < max_iteration:
+            # while eval_count < max_evaluations:
+            # while repeated < 1:
+
+            c_pop = []  # Children population
+            for _ in range(nc // 2):
+                # Select Parents
+                q = np.random.permutation(n_pop)
+                p1 = pop[q[0]]
+                p2 = pop[q[1]]
+
+                # a. Perform Crossover
+                c1, c2 = GA_Bitmap.crossover(p1, p2, gamma)
+
+                # Evaluate First Offspring
+                c1.cost = Bitmap.cost_func(c1.gene, attr_keys_spl, d_set)
+                if c1.cost < best_sol.cost:
+                    best_sol = c1.deepcopy()
+                eval_count += 1
+                str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+
+                # Evaluate Second Offspring
+                c2.cost = Bitmap.cost_func(c2.gene, attr_keys_spl, d_set)
+                if c2.cost < best_sol.cost:
+                    best_sol = c2.deepcopy()
+                eval_count += 1
+                str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+
+                # b. Perform Mutation
+                c1 = GA_Bitmap.mutate(c1, mu, sigma)
+                c2 = GA_Bitmap.mutate(c2, mu, sigma)
+
+                # Evaluate First Offspring
+                c1.cost = Bitmap.cost_func(c1.gene, attr_keys_spl, d_set)
+                if c1.cost < best_sol.cost:
+                    best_sol = c1.deepcopy()
+                eval_count += 1
+                str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+
+                # Evaluate Second Offspring
+                c2.cost = Bitmap.cost_func(c2.gene, attr_keys_spl, d_set)
+                if c2.cost < best_sol.cost:
+                    best_sol = c2.deepcopy()
+                eval_count += 1
+                str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+
+                # c. Add Offsprings to c_pop
+                c_pop.append(c1)
+                c_pop.append(c2)
+
+            # Merge, Sort and Select
+            pop += c_pop
+            pop = sorted(pop, key=lambda x: x.cost)
+            pop = pop[0:n_pop]
+
+            best_gp = validate_gp(d_set, Bitmap.decode_gp(attr_keys_spl, best_sol.gene))
+            is_present = is_duplicate(best_gp, best_patterns)
+            is_sub = check_anti_monotony(best_patterns, best_gp, subset=True)
+            if is_present or is_sub:
+                repeated += 1
+            else:
+                if best_gp.support >= min_supp:
+                    best_patterns.append(best_gp)
+                # else:
+                #    best_sol.cost = 1
+
+            try:
+                # Show Iteration Information
+                # Store Best Cost
+                best_costs[it_count] = best_sol.cost
+                best_genes.append(best_sol.gene)
+                # print("Iteration {}: Best Cost = {}".format(it_count, best_costs[it_count]))
+                str_iter += "{}: {} \n".format(it_count, best_costs[it_count])
+            except IndexError:
+                pass
+            it_count += 1
+
+        # Output
+        out = structure()
+        out.pop = pop
+        out.best_sol = best_sol
+        out.best_costs = best_costs
+        out.best_patterns = best_patterns
+        out.str_iterations = str_iter
+        out.str_evaluations = str_eval
+        out.iteration_count = it_count
+        out.max_iteration = max_iteration
+        out.cost_evaluations = eval_count
+        out.n_pop = n_pop
+        out.pc = pc
+        out.titles = d_set.titles
+        out.col_count = d_set.col_count
+        out.row_count = d_set.row_count
+        return out
+
+    @staticmethod
+    def crossover(p1, p2, gamma=0.1):
+        c1 = p1.deepcopy()
+        c2 = p2.deepcopy()
+        alpha = np.random.uniform(-gamma, 1 + gamma, c1.gene.shape[1])
+        c1.gene = alpha * p1.gene + (1 - alpha) * p2.gene
+        c2.gene = alpha * p2.gene + (1 - alpha) * p1.gene
+        return c1, c2
+
+    @staticmethod
+    def mutate(x, mu, sigma):
+        y = x.deepcopy()
+        flag = np.random.rand(*x.gene.shape) <= mu
+        ind = flag  # np.argwhere(flag)
+        y.gene += sigma * np.random.rand(*ind.shape)
+        return y
 
 
 def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma, visuals):
@@ -232,7 +397,7 @@ def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma,
         else:
             num_cores = sgp.get_num_cores()
 
-        out = run_genetic_algorithm(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma)
+        out = GA_Numeric.run(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma)
         list_gp = out.best_patterns
 
         # Results
@@ -284,7 +449,7 @@ def parameter_tuning():
                'gamma': (0.1, 0.9), 'mu': (0.1, 0.9), 'sigma': (0.1, 0.9)}
 
     optimizer = BayesianOptimization(
-        f=run_genetic_algorithm,
+        f=GA_Numeric.run,
         pbounds=pbounds,
         random_state=1,
     )
@@ -294,3 +459,4 @@ def parameter_tuning():
         n_iter=0,
     )
     return optimizer.max
+
