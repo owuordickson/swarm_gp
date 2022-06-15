@@ -2,7 +2,7 @@
 
 # Configurations for Gradual Patterns:
 # INITIALIZATIONS = 3
-ALGORITHM = 'aco'  # aco, ga, pso, prs, pls, gra, lcm
+ALGORITHM = 'ga'  # aco, ga, pso, prs, pls, gra, lcm
 MIN_SUPPORT = 0.5
 CPU_CORES = 4
 

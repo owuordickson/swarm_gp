@@ -82,7 +82,9 @@ class GA_Numeric:
         best_patterns = []
         str_iter = ''
         str_eval = ''
+
         invalid_count = 0  # TO BE REMOVED
+        all_encodings = [] # TO BE REMOVED
 
         repeated = 0
         while it_count < max_iteration:
@@ -121,6 +123,9 @@ class GA_Numeric:
                 eval_count += 1
                 str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
+                all_encodings.append(c1.position)
+                all_encodings.append(c2.position)
+
                 # b. Perform Mutation
                 c1 = GA_Numeric.mutate(c1, mu, sigma)
                 c2 = GA_Numeric.mutate(c2, mu, sigma)
@@ -150,6 +155,9 @@ class GA_Numeric:
                 # c. Add Offsprings to c_pop
                 c_pop.append(c1)
                 c_pop.append(c2)
+
+                all_encodings.append(c1.position)
+                all_encodings.append(c2.position)
 
             # Merge, Sort and Select
             pop += c_pop
@@ -187,6 +195,7 @@ class GA_Numeric:
         out.best_costs = best_costs
         out.best_patterns = best_patterns
         out.invalid_pattern_count = invalid_count
+        out.total_candidates = all_encodings
         out.str_iterations = str_iter
         out.str_evaluations = str_eval
         out.iteration_count = it_count
@@ -204,9 +213,9 @@ class GA_Numeric:
         c1 = p1.deepcopy()
 
         c2 = p2.deepcopy()
-        alpha = np.random.uniform(0, gamma, 1)
-        c1.position = alpha * p1.position + (1 - alpha) * p2.position
-        c2.position = alpha * p2.position + (1 - alpha) * p1.position
+        alpha = np.random.uniform(0, gamma, 1)[0]
+        c1.position = int(alpha * p1.position + (1 - alpha) * p2.position)
+        c2.position = int(alpha * p2.position + (1 - alpha) * p1.position)
         return c1, c2
 
     @staticmethod
@@ -254,6 +263,7 @@ class GA_Numeric:
 
             wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
             wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n'
+            wr_line += "Candidates: " + str(out.total_candidates) + '\n'
 
             wr_line += "Minimum support: " + str(min_supp) + '\n'
             wr_line += "Number of cores: " + str(num_cores) + '\n'
@@ -316,6 +326,9 @@ class GA_Bitmap:
         for i in range(n_pop):
             pop[i].gene = Bitmap.build_gp_gene(attr_keys_spl)
             pop[i].cost = 1
+            # print(pop[i].gene)
+            # print(pop[i].gene.shape)
+            # print(attr_keys_spl)
 
         # Best Solution Ever Found
         best_sol = empty_individual.deepcopy()
@@ -330,6 +343,8 @@ class GA_Bitmap:
         str_eval = ''
 
         invalid_count = 0
+        all_encodings = []
+
         repeated = 0
         while it_count < max_iteration:
             # while eval_count < max_evaluations:
@@ -363,6 +378,9 @@ class GA_Bitmap:
                 eval_count += 1
                 str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
+                all_encodings.append(Bitmap.decode_encoding(c1.gene))
+                all_encodings.append(Bitmap.decode_encoding(c2.gene))
+
                 # b. Perform Mutation
                 c1 = GA_Bitmap.mutate(c1, mu, sigma)
                 c2 = GA_Bitmap.mutate(c2, mu, sigma)
@@ -388,6 +406,9 @@ class GA_Bitmap:
                 # c. Add Offsprings to c_pop
                 c_pop.append(c1)
                 c_pop.append(c2)
+
+                all_encodings.append(Bitmap.decode_encoding(c1.gene))
+                all_encodings.append(Bitmap.decode_encoding(c2.gene))
 
             # Merge, Sort and Select
             pop += c_pop
@@ -423,6 +444,7 @@ class GA_Bitmap:
         out.best_costs = best_costs
         out.best_patterns = best_patterns
         out.invalid_pattern_count = invalid_count
+        out.total_candidates = all_encodings
         out.str_iterations = str_iter
         out.str_evaluations = str_eval
         out.iteration_count = it_count
@@ -475,6 +497,7 @@ class GA_Bitmap:
 
             wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
             wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n'
+            wr_line += "Candidates: " + str(out.total_candidates) + '\n'
 
             wr_line += "Minimum support: " + str(min_supp) + '\n'
             wr_line += "Number of cores: " + str(num_cores) + '\n'

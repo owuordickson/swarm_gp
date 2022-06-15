@@ -69,6 +69,8 @@ class RS_Numeric:
         str_eval = ''
 
         invalid_count = 0
+        all_encodings = []
+
         repeated = 0
         while it_count < max_iteration:
             # while eval_count < max_evaluations:
@@ -83,6 +85,7 @@ class RS_Numeric:
                 best_sol = candidate.deepcopy()
             eval_count += 1
             str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+            all_encodings.append(candidate.position)
 
             best_gp = validate_gp(d_set, Numeric.decode_gp(attr_keys, best_sol.position))
             is_present = is_duplicate(best_gp, best_patterns)
@@ -114,6 +117,7 @@ class RS_Numeric:
         out.best_costs = best_costs
         out.best_patterns = best_patterns
         out.invalid_pattern_count = invalid_count
+        out.total_candidates = all_encodings
         out.str_iterations = str_iter
         out.iteration_count = it_count
         out.max_iteration = max_iteration
@@ -143,6 +147,7 @@ class RS_Numeric:
 
             wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
             wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n'
+            wr_line += "Candidates: " + str(out.total_candidates) + '\n'
 
             wr_line += "Minimum support: " + str(min_supp) + '\n'
             wr_line += "Number of cores: " + str(num_cores) + '\n'
@@ -211,6 +216,8 @@ class RS_Bitmap:
         str_eval = ''
 
         invalid_count = 0
+        all_encodings = []
+
         repeated = 0
         while it_count < max_iteration:
             # while eval_count < max_evaluations:
@@ -224,6 +231,7 @@ class RS_Bitmap:
                 best_sol = candidate.deepcopy()
             eval_count += 1
             str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
+            all_encodings.append(Bitmap.decode_encoding(candidate.position))
 
             best_gp = validate_gp(d_set, Bitmap.decode_gp(attr_keys_spl, best_sol.position))
             is_present = is_duplicate(best_gp, best_patterns)
@@ -251,6 +259,7 @@ class RS_Bitmap:
         out.best_costs = best_costs
         out.best_patterns = best_patterns
         out.invalid_pattern_count = invalid_count
+        out.total_candidates = all_encodings
         out.str_iterations = str_iter
         out.iteration_count = it_count
         out.max_iteration = max_iteration
@@ -280,6 +289,7 @@ class RS_Bitmap:
 
             wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
             wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n'
+            wr_line += "Candidates: " + str(out.total_candidates) + '\n'
 
             wr_line += "Minimum support: " + str(min_supp) + '\n'
             wr_line += "Number of cores: " + str(num_cores) + '\n'
