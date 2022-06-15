@@ -27,6 +27,157 @@ def get_quick_mem_use(s_shot, key_type='lineno'):
     return wr_line
 
 
+def configure_parameters(fpath):
+    if "DATASET" in fpath:
+        print("test set")
+    elif "hungary_chickenpox" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 12
+        cfg.PC = 0.913
+        cfg.GAMMA = 529  # Cross-over
+        cfg.MU = 0.856  # Mutation
+        cfg.SIGMA = 0.209  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 19
+        cfg.VELOCITY = 0.628
+        cfg.PERSONAL_COEFF = 0.14
+        cfg.GLOBAL_COEFF = 0.431
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.232
+    elif "air_quality" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 20
+        cfg.PC = 0.382
+        cfg.GAMMA = 547  # Cross-over
+        cfg.MU = 0.741  # Mutation
+        cfg.SIGMA = 0.654  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 19
+        cfg.VELOCITY = 0.628
+        cfg.PERSONAL_COEFF = 0.14
+        cfg.GLOBAL_COEFF = 0.431
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.232
+    elif "aps_2k" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 20
+        cfg.PC = 0.382
+        cfg.GAMMA = 547  # Cross-over
+        cfg.MU = 0.741  # Mutation
+        cfg.SIGMA = 0.654  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 5
+        cfg.VELOCITY = 0.9
+        cfg.PERSONAL_COEFF = 0.01
+        cfg.GLOBAL_COEFF = 0.9
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.125
+    elif "breast_cancer" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 8
+        cfg.PC = 0.776
+        cfg.GAMMA = 746  # Cross-over
+        cfg.MU = 0.842  # Mutation
+        cfg.SIGMA = 0.681  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 19
+        cfg.VELOCITY = 0.628
+        cfg.PERSONAL_COEFF = 0.14
+        cfg.GLOBAL_COEFF = 0.431
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.278
+    elif "c2k" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 20
+        cfg.PC = 0.382
+        cfg.GAMMA = 547  # Cross-over
+        cfg.MU = 0.741  # Mutation
+        cfg.SIGMA = 0.654  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 19
+        cfg.VELOCITY = 0.628
+        cfg.PERSONAL_COEFF = 0.14
+        cfg.GLOBAL_COEFF = 0.431
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.723
+    elif "directio8k" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 8
+        cfg.PC = 0.776
+        cfg.GAMMA = 746  # Cross-over
+        cfg.MU = 0.842  # Mutation
+        cfg.SIGMA = 0.681  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 20
+        cfg.VELOCITY = 0.77
+        cfg.PERSONAL_COEFF = 0.649
+        cfg.GLOBAL_COEFF = 0.352
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.217
+    elif "hcv_data" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 8
+        cfg.PC = 0.776
+        cfg.GAMMA = 746  # Cross-over
+        cfg.MU = 0.842  # Mutation
+        cfg.SIGMA = 0.681  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 7
+        cfg.VELOCITY = 0.359
+        cfg.PERSONAL_COEFF = 0.731
+        cfg.GLOBAL_COEFF = 0.324
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.89
+    elif "Omnidir_site2k" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 8
+        cfg.PC = 0.776
+        cfg.GAMMA = 746  # Cross-over
+        cfg.MU = 0.842  # Mutation
+        cfg.SIGMA = 0.681  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 7
+        cfg.VELOCITY = 0.359
+        cfg.PERSONAL_COEFF = 0.731
+        cfg.GLOBAL_COEFF = 0.324
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.278
+    elif "power_consumption10k" in fpath:
+        # GA-GRAD Configurations:
+        cfg.N_POPULATION = 17
+        cfg.PC = 0.116
+        cfg.GAMMA = 527  # Cross-over
+        cfg.MU = 0.649  # Mutation
+        cfg.SIGMA = 0.7  # Mutation
+
+        # PSO-GRAD Configurations:
+        cfg.N_PARTICLES = 5
+        cfg.VELOCITY = 0.890
+        cfg.PERSONAL_COEFF = 0.417
+        cfg.GLOBAL_COEFF = 0.376
+
+        # PLS-GRAD Configurations
+        cfg.STEP_SIZE = 0.232
+    elif "" in fpath:
+        pass
+
+
 if __name__ == "__main__":
     if not sys.argv:
         algChoice = sys.argv[0]
@@ -113,6 +264,8 @@ if __name__ == "__main__":
     import tracemalloc
     import so4gp as sgp
     from pkg_algorithms.shared.dataset import CONF_SOURCE
+
+    configure_parameters(filePath)
 
     if algChoice == 'ga':
         # GA-GRAANK

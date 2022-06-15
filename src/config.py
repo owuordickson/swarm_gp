@@ -31,12 +31,12 @@ MU = 0.9  # Mutation
 SIGMA = 0.9  # Mutation
 
 # PSO-GRAD Configurations:
+N_PARTICLES = 5
 VELOCITY = 0.9  # higher values helps to move to next number in search space
 PERSONAL_COEFF = 0.01
 GLOBAL_COEFF = 0.9
 TARGET = 1
 TARGET_ERROR = 1e-6
-N_PARTICLES = 5
 
 # PLS-GRAD Configurations
 STEP_SIZE = 0.5
