@@ -127,8 +127,12 @@ if __name__ == "__main__":
         else:
             start = time.time()
             tracemalloc.start()
-            res_text = ga_grad.GA_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION,
-                                                  pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
+            if cfg.SEARCH_SPACE == 'bm':
+                res_text = ga_grad.GA_Bitmap.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION,
+                                                     pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
+            else:
+                res_text = ga_grad.GA_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION,
+                                                      pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
             snapshot = tracemalloc.take_snapshot()
             end = time.time()
 
@@ -151,8 +155,12 @@ if __name__ == "__main__":
         else:
             start = time.time()
             tracemalloc.start()
-            res_text = pso_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES, vFactor,
-                                        cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
+            if cfg.SEARCH_SPACE == 'bm':
+                res_text = pso_grad.PSO_Bitmap.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES,
+                                                       vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
+            else:
+                res_text = pso_grad.PSO_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES,
+                                                        vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
             snapshot = tracemalloc.take_snapshot()
             end = time.time()
 
@@ -175,7 +183,10 @@ if __name__ == "__main__":
         else:
             start = time.time()
             tracemalloc.start()
-            res_text = prs_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_VAR, VISUAL)
+            if cfg.SEARCH_SPACE == 'bm':
+                res_text = prs_grad.RS_Bitmap.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_VAR, VISUAL)
+            else:
+                res_text = prs_grad.RS_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_VAR, VISUAL)
             snapshot = tracemalloc.take_snapshot()
             end = time.time()
 
@@ -198,7 +209,12 @@ if __name__ == "__main__":
         else:
             start = time.time()
             tracemalloc.start()
-            res_text = pls_grad.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, stepVal, cfg.N_VAR, VISUAL)
+            if cfg.SEARCH_SPACE == 'bm':
+                res_text = pls_grad.LS_Bitmap.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, stepVal,
+                                                      cfg.N_VAR, VISUAL)
+            else:
+                res_text = pls_grad.LS_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, stepVal,
+                                                       cfg.N_VAR, VISUAL)
             snapshot = tracemalloc.take_snapshot()
             end = time.time()
 

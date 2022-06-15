@@ -328,6 +328,7 @@ class GA_Bitmap:
         str_iter = ''
         str_eval = ''
 
+        invalid_count = 0
         repeated = 0
         while it_count < max_iteration:
             # while eval_count < max_evaluations:
@@ -345,6 +346,8 @@ class GA_Bitmap:
 
                 # Evaluate First Offspring
                 c1.cost = Bitmap.cost_func(c1.gene, attr_keys_spl, d_set)
+                if c1.cost == 1:
+                    invalid_count += 1
                 if c1.cost < best_sol.cost:
                     best_sol = c1.deepcopy()
                 eval_count += 1
@@ -352,6 +355,8 @@ class GA_Bitmap:
 
                 # Evaluate Second Offspring
                 c2.cost = Bitmap.cost_func(c2.gene, attr_keys_spl, d_set)
+                if c2.cost == 1:
+                    invalid_count += 1
                 if c2.cost < best_sol.cost:
                     best_sol = c2.deepcopy()
                 eval_count += 1
@@ -363,6 +368,8 @@ class GA_Bitmap:
 
                 # Evaluate First Offspring
                 c1.cost = Bitmap.cost_func(c1.gene, attr_keys_spl, d_set)
+                if c1.cost == 1:
+                    invalid_count += 1
                 if c1.cost < best_sol.cost:
                     best_sol = c1.deepcopy()
                 eval_count += 1
@@ -370,6 +377,8 @@ class GA_Bitmap:
 
                 # Evaluate Second Offspring
                 c2.cost = Bitmap.cost_func(c2.gene, attr_keys_spl, d_set)
+                if c2.cost == 1:
+                    invalid_count += 1
                 if c2.cost < best_sol.cost:
                     best_sol = c2.deepcopy()
                 eval_count += 1
@@ -412,6 +421,7 @@ class GA_Bitmap:
         out.best_sol = best_sol
         out.best_costs = best_costs
         out.best_patterns = best_patterns
+        out.invalid_pattern_count = invalid_count
         out.str_iterations = str_iter
         out.str_evaluations = str_eval
         out.iteration_count = it_count
@@ -449,7 +459,7 @@ class GA_Bitmap:
             else:
                 num_cores = sgp.get_num_cores()
 
-            out = GA_Numeric.run(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma)
+            out = GA_Bitmap.run(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma)
             list_gp = out.best_patterns
 
             wr_line = "Algorithm: GA-GRAANK (v1.0)\n"
@@ -509,4 +519,3 @@ def parameter_tuning():
         n_iter=0,
     )
     return optimizer.max
-
