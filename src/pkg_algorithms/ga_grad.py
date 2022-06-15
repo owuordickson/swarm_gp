@@ -23,10 +23,11 @@ import random
 import numpy as np
 from bayes_opt import BayesianOptimization
 from ypstruct import structure
+import so4gp as sgp
 
-from .shared.gp import GI, GP
+from .shared.gp import GI, validate_gp, decode_gp, is_duplicate, check_anti_monotony
 from .shared.dataset_bfs import Dataset
-from .shared.profile import Profile
+from .shared.swarm import cost_func, apply_bound
 
 
 def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma):
@@ -76,6 +77,7 @@ def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, m
     best_patterns = []
     str_iter = ''
     str_eval = ''
+    invalid_count = 0  # TO BE REMOVED
 
     repeated = 0
     while it_count < max_iteration:
@@ -98,6 +100,8 @@ def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, m
 
             # Evaluate First Offspring
             c1.cost = cost_func(c1.position, attr_keys, d_set)
+            if c1.cost == 1:
+                invalid_count += 1
             if c1.cost < best_sol.cost:
                 best_sol = c1.deepcopy()
             eval_count += 1
@@ -105,6 +109,8 @@ def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, m
 
             # Evaluate Second Offspring
             c2.cost = cost_func(c2.position, attr_keys, d_set)
+            if c2.cost == 1:
+                invalid_count += 1
             if c2.cost < best_sol.cost:
                 best_sol = c2.deepcopy()
             eval_count += 1
@@ -120,6 +126,8 @@ def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, m
 
             # Evaluate First Offspring
             c1.cost = cost_func(c1.position, attr_keys, d_set)
+            if c1.cost == 1:
+                invalid_count += 1
             if c1.cost < best_sol.cost:
                 best_sol = c1.deepcopy()
             eval_count += 1
@@ -127,6 +135,8 @@ def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, m
 
             # Evaluate Second Offspring
             c2.cost = cost_func(c2.position, attr_keys, d_set)
+            if c2.cost == 1:
+                invalid_count += 1
             if c2.cost < best_sol.cost:
                 best_sol = c2.deepcopy()
             eval_count += 1
@@ -171,6 +181,7 @@ def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, m
     out.best_sol = best_sol
     out.best_costs = best_costs
     out.best_patterns = best_patterns
+    out.invalid_pattern_count = invalid_count
     out.str_iterations = str_iter
     out.str_evaluations = str_eval
     out.iteration_count = it_count
@@ -182,26 +193,6 @@ def run_genetic_algorithm(data_src, min_supp, max_iteration, n_pop, pc, gamma, m
     out.col_count = d_set.col_count
     out.row_count = d_set.row_count
     return out
-
-
-def cost_func(position, attr_keys, d_set):
-    pattern = decode_gp(attr_keys, position)
-    temp_bin = np.array([])
-    for gi in pattern.gradual_items:
-        arg = np.argwhere(np.isin(d_set.valid_bins[:, 0], gi.gradual_item))
-        if len(arg) > 0:
-            i = arg[0][0]
-            valid_bin = d_set.valid_bins[i]
-            if temp_bin.size <= 0:
-                temp_bin = valid_bin[1].copy()
-            else:
-                temp_bin = np.multiply(temp_bin, valid_bin[1])
-    bin_sum = np.sum(temp_bin)
-    if bin_sum > 0:
-        cost = (1 / bin_sum)
-    else:
-        cost = 1
-    return cost
 
 
 def crossover(p1, p2, gamma=0.1):
@@ -234,97 +225,18 @@ def mutate(x, mu, sigma):
     return y
 
 
-def apply_bound(x, var_min, var_max):
-    x.position = np.maximum(x.position, var_min)
-    x.position = np.minimum(x.position, var_max)
-
-
-def decode_gp(attr_keys, position):
-    temp_gp = GP()
-    if position is None:
-        return temp_gp
-
-    bin_str = bin(int(position))[2:]
-    bin_arr = np.array(list(bin_str), dtype=int)
-
-    for i in range(bin_arr.size):
-        bin_val = bin_arr[i]
-        if bin_val == 1:
-            gi = GI.parse_gi(attr_keys[i])
-            if not temp_gp.contains_attr(gi):
-                temp_gp.add_gradual_item(gi)
-    return temp_gp
-
-
-def validate_gp(d_set, pattern):
-
-    # pattern = [('2', '+'), ('4', '+')]
-    min_supp = d_set.thd_supp
-    n = d_set.attr_size
-    gen_pattern = GP()
-    bin_arr = np.array([])
-
-    for gi in pattern.gradual_items:
-        arg = np.argwhere(np.isin(d_set.valid_bins[:, 0], gi.gradual_item))
-        if len(arg) > 0:
-            i = arg[0][0]
-            valid_bin = d_set.valid_bins[i]
-            if bin_arr.size <= 0:
-                bin_arr = np.array([valid_bin[1], valid_bin[1]])
-                gen_pattern.add_gradual_item(gi)
-            else:
-                bin_arr[1] = valid_bin[1].copy()
-                temp_bin = np.multiply(bin_arr[0], bin_arr[1])
-                supp = float(np.sum(temp_bin)) / float(n * (n - 1.0) / 2.0)
-                if supp >= min_supp:
-                    bin_arr[0] = temp_bin.copy()
-                    gen_pattern.add_gradual_item(gi)
-                    gen_pattern.set_support(supp)
-    if len(gen_pattern.gradual_items) <= 1:
-        return pattern
-    else:
-        return gen_pattern
-
-
-def check_anti_monotony(lst_p, pattern, subset=True):
-    result = False
-    if subset:
-        for pat in lst_p:
-            result1 = set(pattern.get_pattern()).issubset(set(pat.get_pattern()))
-            result2 = set(pattern.inv_pattern()).issubset(set(pat.get_pattern()))
-            if result1 or result2:
-                result = True
-                break
-    else:
-        for pat in lst_p:
-            result1 = set(pattern.get_pattern()).issuperset(set(pat.get_pattern()))
-            result2 = set(pattern.inv_pattern()).issuperset(set(pat.get_pattern()))
-            if result1 or result2:
-                result = True
-                break
-    return result
-
-
-def is_duplicate(pattern, lst_winners):
-    for pat in lst_winners:
-        if set(pattern.get_pattern()) == set(pat.get_pattern()) or \
-                set(pattern.inv_pattern()) == set(pat.get_pattern()):
-            return True
-    return False
-
-
-def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma, visuals):
+def execute(f_path, min_supp, cores, max_iteration, n_pop, pc, gamma, mu, sigma, visuals):
     try:
         if cores > 1:
             num_cores = cores
         else:
-            num_cores = Profile.get_num_cores()
+            num_cores = sgp.get_num_cores()
 
-        out = run_genetic_algorithm(f_path, min_supp, max_iteration, max_evaluations, n_pop, pc, gamma, mu, sigma)
+        out = run_genetic_algorithm(f_path, min_supp, max_iteration, n_pop, pc, gamma, mu, sigma)
         list_gp = out.best_patterns
 
         # Results
-        Profile.plot_curve(out, 'Genetic Algorithm (GA)')
+        # sgp.plot_curve(out, 'Genetic Algorithm (GA)')
 
         wr_line = "Algorithm: GA-GRAANK (v2.0)\n"
         wr_line += "No. of (dataset) attributes: " + str(out.col_count) + '\n'
@@ -338,6 +250,7 @@ def execute(f_path, min_supp, cores, max_iteration, max_evaluations, n_pop, pc, 
         wr_line += "Minimum support: " + str(min_supp) + '\n'
         wr_line += "Number of cores: " + str(num_cores) + '\n'
         wr_line += "Number of patterns: " + str(len(list_gp)) + '\n'
+        wr_line += "Number of invalid patterns: " + str(out.invalid_pattern_count) + '\n'
         wr_line += "Number of iterations: " + str(out.iteration_count) + '\n'
         wr_line += "Number of cost evaluations: " + str(out.cost_evaluations) + '\n\n'
 
@@ -371,7 +284,7 @@ def parameter_tuning():
                'gamma': (0.1, 0.9), 'mu': (0.1, 0.9), 'sigma': (0.1, 0.9)}
 
     optimizer = BayesianOptimization(
-        f= run_genetic_algorithm,
+        f=run_genetic_algorithm,
         pbounds=pbounds,
         random_state=1,
     )

@@ -17,8 +17,7 @@ DATASET = "../data/DATASET.csv"
 # DATASET = "data/hcv_data.csv"
 
 # Global Swarm Configurations
-MAX_ITERATIONS = 10
-MAX_EVALUATIONS = 10
+MAX_ITERATIONS = 20
 N_VAR = 1  # DO NOT CHANGE
 
 # ACO-GRAD Configurations:
@@ -46,6 +45,6 @@ STEP_SIZE = 0.5
 SHOW_P_MATRIX = False  # ONLY FOR: aco
 SHOW_EVALUATIONS = False  # FOR aco, prs, pls, pso
 SHOW_ITERATIONS = True  # FOR aco, prs, pls, pso
-SAVE_RESULTS = True  # FOR aco, prs, pls, pso
+SAVE_RESULTS = False  # FOR aco, prs, pls, pso
 
-TUNE_VAL = 1
+TUNE_VAL = 0
