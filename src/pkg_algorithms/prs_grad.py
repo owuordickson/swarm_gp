@@ -26,9 +26,9 @@ from bayes_opt import BayesianOptimization
 from ypstruct import structure
 import so4gp as sgp
 
-from .shared.gp import GI, validate_gp, decode_gp, is_duplicate, check_anti_monotony
+from .shared.gp import GI, validate_gp, is_duplicate, check_anti_monotony
 from .shared.dataset_bfs import Dataset
-from .shared.swarm import cost_func, apply_bound
+from .shared.swarm import decode_gp, cost_func, apply_bound
 
 
 def run_pure_random_search(data_src, min_supp, max_iteration, nvar):

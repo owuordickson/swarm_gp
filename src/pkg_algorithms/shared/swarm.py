@@ -1,5 +1,22 @@
 import numpy as np
-from .gp import decode_gp
+from .gp import GI, GP
+
+
+def decode_gp(attr_keys, position):
+    temp_gp = GP()
+    if position is None:
+        return temp_gp
+
+    bin_str = bin(int(position))[2:]
+    bin_arr = np.array(list(bin_str), dtype=int)
+
+    for i in range(bin_arr.size):
+        bin_val = bin_arr[i]
+        if bin_val == 1:
+            gi = GI.parse_gi(attr_keys[i])
+            if not temp_gp.contains_attr(gi):
+                temp_gp.add_gradual_item(gi)
+    return temp_gp
 
 
 def cost_func(position, attr_keys, d_set):
