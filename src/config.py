@@ -49,4 +49,4 @@ SAVE_RESULTS = True  # FOR aco, prs, pls, pso
 
 TUNE_VAL = 0
 
-SEARCH_SPACE = 'bm'  # nu, bm
+SEARCH_SPACE = 'nu'  # nu, bm

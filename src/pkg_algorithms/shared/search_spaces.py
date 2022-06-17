@@ -86,25 +86,25 @@ class Bitmap:
 
     @staticmethod
     def decode_encoding(gene):
-        temp = []
         if gene is None:
             return -1
-        for a in range(gene.shape[0]):
-            # gi = None
-            if gene[a][0] > gene[a][1]:
-                temp.append([0, 1])
-                # gi = GI.parse_gi(attr_keys[a][0])
-            elif gene[a][1] > gene[a][0]:
-                temp.append([1, 0])
-            else:
-                temp.append([0, 0])
-                # gi = GI.parse_gi(attr_keys[a][1])
-            # if not (gi is None) and (not temp_gp.contains_attr(gi)):
-            #    temp_gp.add_gradual_item(gi)
-        temp = np.array(temp).ravel()
-        val = temp.dot(2 ** np.arange(temp.size)[::-1])
-        return val
 
+        for i in range(gene.shape[0]):
+            if gene[i][0] > gene[i][1]:
+                gene[i][0] = 1
+                gene[i][1] = 0
+            elif gene[i][0] < gene[i][1]:
+                gene[i][0] = 0
+                gene[i][1] = 1
+            elif (gene[i][0] == gene[i][1]) and gene[i][0] != 0:
+                gene[i][0] = 1
+                gene[i][1] = 1
+            else:
+                gene[i][0] = 0
+                gene[i][1] = 0
+        gene = np.array(gene).ravel()
+        val = gene.dot(2 ** np.arange(gene.size)[::-1])
+        return val
 
     @staticmethod
     def build_gp_gene(attr_keys):

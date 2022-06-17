@@ -1,4 +1,5 @@
-import so4gp as sgp
+# import so4gp as sgp
+from .shared import so4gp as sgp
 
 
 def execute(f_path, min_supp, cores, eq=False):

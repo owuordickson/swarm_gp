@@ -34,7 +34,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 12
         cfg.PC = 0.913
-        cfg.GAMMA = 529  # Cross-over
+        cfg.GAMMA = 0.529  # Cross-over
         cfg.MU = 0.856  # Mutation
         cfg.SIGMA = 0.209  # Mutation
 
@@ -50,7 +50,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 20
         cfg.PC = 0.382
-        cfg.GAMMA = 547  # Cross-over
+        cfg.GAMMA = 0.547  # Cross-over
         cfg.MU = 0.741  # Mutation
         cfg.SIGMA = 0.654  # Mutation
 
@@ -66,7 +66,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 20
         cfg.PC = 0.382
-        cfg.GAMMA = 547  # Cross-over
+        cfg.GAMMA = 0.547  # Cross-over
         cfg.MU = 0.741  # Mutation
         cfg.SIGMA = 0.654  # Mutation
 
@@ -82,7 +82,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 8
         cfg.PC = 0.776
-        cfg.GAMMA = 746  # Cross-over
+        cfg.GAMMA = 0.746  # Cross-over
         cfg.MU = 0.842  # Mutation
         cfg.SIGMA = 0.681  # Mutation
 
@@ -98,7 +98,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 20
         cfg.PC = 0.382
-        cfg.GAMMA = 547  # Cross-over
+        cfg.GAMMA = 0.547  # Cross-over
         cfg.MU = 0.741  # Mutation
         cfg.SIGMA = 0.654  # Mutation
 
@@ -114,7 +114,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 8
         cfg.PC = 0.776
-        cfg.GAMMA = 746  # Cross-over
+        cfg.GAMMA = 0.746  # Cross-over
         cfg.MU = 0.842  # Mutation
         cfg.SIGMA = 0.681  # Mutation
 
@@ -130,7 +130,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 8
         cfg.PC = 0.776
-        cfg.GAMMA = 746  # Cross-over
+        cfg.GAMMA = 0.746  # Cross-over
         cfg.MU = 0.842  # Mutation
         cfg.SIGMA = 0.681  # Mutation
 
@@ -146,7 +146,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 8
         cfg.PC = 0.776
-        cfg.GAMMA = 746  # Cross-over
+        cfg.GAMMA = 0.746  # Cross-over
         cfg.MU = 0.842  # Mutation
         cfg.SIGMA = 0.681  # Mutation
 
@@ -162,7 +162,7 @@ def configure_parameters(fpath):
         # GA-GRAD Configurations:
         cfg.N_POPULATION = 17
         cfg.PC = 0.116
-        cfg.GAMMA = 527  # Cross-over
+        cfg.GAMMA = 0.527  # Cross-over
         cfg.MU = 0.649  # Mutation
         cfg.SIGMA = 0.7  # Mutation
 
@@ -282,10 +282,10 @@ if __name__ == "__main__":
             tracemalloc.start()
             if cfg.SEARCH_SPACE == 'bm':
                 res_text = ga_grad.GA_Bitmap.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION,
-                                                     pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
+                                                     cfg.PC, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
             else:
                 res_text = ga_grad.GA_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_POPULATION,
-                                                      pcVal, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
+                                                      cfg.PC, cfg.GAMMA, cfg.MU, cfg.SIGMA, VISUAL)
             snapshot = tracemalloc.take_snapshot()
             end = time.time()
 
@@ -310,10 +310,10 @@ if __name__ == "__main__":
             tracemalloc.start()
             if cfg.SEARCH_SPACE == 'bm':
                 res_text = pso_grad.PSO_Bitmap.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES,
-                                                       vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
+                                                       cfg.VELOCITY, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
             else:
                 res_text = pso_grad.PSO_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.N_PARTICLES,
-                                                        vFactor, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
+                                                        cfg.VELOCITY, cfg.PERSONAL_COEFF, cfg.GLOBAL_COEFF, VISUAL)
             snapshot = tracemalloc.take_snapshot()
             end = time.time()
 
@@ -363,10 +363,10 @@ if __name__ == "__main__":
             start = time.time()
             tracemalloc.start()
             if cfg.SEARCH_SPACE == 'bm':
-                res_text = pls_grad.LS_Bitmap.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, stepVal,
+                res_text = pls_grad.LS_Bitmap.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.STEP_SIZE,
                                                       cfg.N_VAR, VISUAL)
             else:
-                res_text = pls_grad.LS_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, stepVal,
+                res_text = pls_grad.LS_Numeric.execute(filePath, minSup, numCores, cfg.MAX_ITERATIONS, cfg.STEP_SIZE,
                                                        cfg.N_VAR, VISUAL)
             snapshot = tracemalloc.take_snapshot()
             end = time.time()
@@ -416,7 +416,7 @@ if __name__ == "__main__":
         wr_text = ("Run-time: " + str(end - start) + " seconds\n")
         wr_text += (get_quick_mem_use(snapshot) + "\n")
         wr_text += str(res_text)
-        f_name = str('res_graank' + str(end).replace('.', '', 1) + '.txt')
+        f_name = str('res_lcm' + str(end).replace('.', '', 1) + '.txt')
         sgp.write_file(wr_text, f_name, cfg.SAVE_RESULTS)
         print(wr_text)
     else:

@@ -14,7 +14,8 @@ from collections import defaultdict
 from sortedcontainers import SortedDict
 import gc
 import multiprocessing as mp
-import so4gp as sgp
+# import so4gp as sgp
+from .shared import so4gp as sgp
 
 from .shared.dataset_dfs import DatasetDFS
 from .shared.gp import GI, GP

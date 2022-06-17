@@ -64,7 +64,7 @@ class LS_Numeric:
         best_sol.position = None
         # candidate.position = None
         if best_sol.position is None:
-            best_sol.position = np.random.uniform(var_min, var_max, nvar)
+            best_sol.position = int(np.random.uniform(var_min, var_max, nvar)[0])
         # evaluate the initial point
         Numeric.apply_bound(best_sol, var_min, var_max)
         best_sol.cost = Numeric.cost_func(best_sol.position, attr_keys, d_set)
@@ -85,7 +85,7 @@ class LS_Numeric:
             # take a step
             candidate.position = None
             if candidate.position is None:
-                candidate.position = best_sol.position + (random.randrange(var_min, var_max) * step_size)
+                candidate.position = int(best_sol.position + (random.randrange(var_min, var_max) * step_size))
             Numeric.apply_bound(candidate, var_min, var_max)
             candidate.cost = Numeric.cost_func(candidate.position, attr_keys, d_set)
 
