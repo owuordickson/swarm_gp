@@ -46,6 +46,12 @@ class Numeric:
         x.position = np.maximum(x.position, var_min)
         x.position = np.minimum(x.position, var_max)
 
+    @staticmethod
+    def check_validity(cost):
+        if cost == 1:
+            return "False"
+        else:
+            return "True"
 
 class Bitmap:
 

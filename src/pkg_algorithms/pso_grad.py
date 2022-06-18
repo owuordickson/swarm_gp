@@ -93,7 +93,7 @@ class PSO_Numeric:
                         invalid_count += 1
                     eval_count += 1
                     str_eval += "{}: {} \n".format(eval_count, particle_pop[i].fitness)
-                    all_encodings.append(particle_pop[i].position)
+                    all_encodings.append([particle_pop[i].position, Numeric.check_validity(particle_pop[i].fitness)])
 
                 if pbest_pop[i].fitness > particle_pop[i].fitness:
                     pbest_pop[i].fitness = particle_pop[i].fitness
@@ -270,7 +270,8 @@ class PSO_Bitmap:
                     invalid_count += 1
                 eval_count += 1
                 str_eval += "{}: {} \n".format(eval_count, particle_pop[i].fitness)
-                all_encodings.append(Bitmap.decode_encoding(particle_pop[i].position))
+                all_encodings.append([Bitmap.decode_encoding(particle_pop[i].position),
+                                      Numeric.check_validity(particle_pop[i].fitness)])
 
                 if pbest_pop[i].fitness > particle_pop[i].fitness:
                     pbest_pop[i].fitness = particle_pop[i].fitness

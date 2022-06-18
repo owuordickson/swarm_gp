@@ -85,7 +85,7 @@ class RS_Numeric:
                 best_sol = candidate.deepcopy()
             eval_count += 1
             str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
-            all_encodings.append(candidate.position)
+            all_encodings.append([candidate.position, Numeric.check_validity(candidate.cost)])
 
             best_gp = validate_gp(d_set, Numeric.decode_gp(attr_keys, best_sol.position))
             is_present = is_duplicate(best_gp, best_patterns)
@@ -231,7 +231,7 @@ class RS_Bitmap:
                 best_sol = candidate.deepcopy()
             eval_count += 1
             str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
-            all_encodings.append(Bitmap.decode_encoding(candidate.position))
+            all_encodings.append([Bitmap.decode_encoding(candidate.position), Numeric.check_validity(candidate.cost)])
 
             best_gp = validate_gp(d_set, Bitmap.decode_gp(attr_keys_spl, best_sol.position))
             is_present = is_duplicate(best_gp, best_patterns)

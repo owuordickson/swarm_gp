@@ -84,7 +84,7 @@ class GA_Numeric:
         str_eval = ''
 
         invalid_count = 0  # TO BE REMOVED
-        all_encodings = [] # TO BE REMOVED
+        all_encodings = []  # TO BE REMOVED
 
         repeated = 0
         while it_count < max_iteration:
@@ -123,8 +123,8 @@ class GA_Numeric:
                 eval_count += 1
                 str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
-                all_encodings.append(c1.position)
-                all_encodings.append(c2.position)
+                all_encodings.append([c1.position, Numeric.check_validity(c1.cost)])
+                all_encodings.append([c2.position, Numeric.check_validity(c2.cost)])
 
                 # b. Perform Mutation
                 c1 = GA_Numeric.mutate(c1, mu, sigma)
@@ -156,8 +156,8 @@ class GA_Numeric:
                 c_pop.append(c1)
                 c_pop.append(c2)
 
-                all_encodings.append(c1.position)
-                all_encodings.append(c2.position)
+                all_encodings.append([c1.position, Numeric.check_validity(c1.cost)])
+                all_encodings.append([c2.position, Numeric.check_validity(c2.cost)])
 
             # Merge, Sort and Select
             pop += c_pop
@@ -378,8 +378,8 @@ class GA_Bitmap:
                 eval_count += 1
                 str_eval += "{}: {} \n".format(eval_count, best_sol.cost)
 
-                all_encodings.append(Bitmap.decode_encoding(c1.gene))
-                all_encodings.append(Bitmap.decode_encoding(c2.gene))
+                all_encodings.append([Bitmap.decode_encoding(c1.gene), Numeric.check_validity(c1.cost)])
+                all_encodings.append([Bitmap.decode_encoding(c2.gene), Numeric.check_validity(c2.cost)])
 
                 # b. Perform Mutation
                 c1 = GA_Bitmap.mutate(c1, mu, sigma)
@@ -407,8 +407,8 @@ class GA_Bitmap:
                 c_pop.append(c1)
                 c_pop.append(c2)
 
-                all_encodings.append(Bitmap.decode_encoding(c1.gene))
-                all_encodings.append(Bitmap.decode_encoding(c2.gene))
+                all_encodings.append([Bitmap.decode_encoding(c1.gene), Numeric.check_validity(c1.cost)])
+                all_encodings.append([Bitmap.decode_encoding(c2.gene), Numeric.check_validity(c2.cost)])
 
             # Merge, Sort and Select
             pop += c_pop
