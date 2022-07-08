@@ -53,6 +53,7 @@ class Numeric:
         else:
             return "True"
 
+
 class Bitmap:
 
     @staticmethod
